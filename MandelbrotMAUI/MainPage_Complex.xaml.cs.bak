@@ -1,0 +1,73 @@
+using MandelbrotMAUI.Services;
+using MandelbrotMAUI.Views;
+using MandelbrotMAUI.Models;
+
+namespace MandelbrotMAUI;
+
+public partial class MainPage : ContentPage
+{
+    private readonly TileManager _tileManager;
+    private readonly MandelbrotCanvas _canvas;
+    private readonly MandelbrotParameters _parameters;
+
+    public MainPage()
+    {
+        System.Console.WriteLine("=== MainPage Constructor Starting ===");
+        
+        InitializeComponent();
+        System.Console.WriteLine("InitializeComponent completed");
+        
+        // サービスの初期化
+        var mandelbrotService = new CpuMandelbrotService();
+        System.Console.WriteLine("MandelbrotService created");
+        
+        _tileManager = new TileManager(mandelbrotService);
+        System.Console.WriteLine("TileManager created");
+        
+        // パラメータの初期化
+        _parameters = new MandelbrotParameters();
+        BindingContext = _parameters;
+        System.Console.WriteLine("Parameters and BindingContext set");
+        
+        // キャンバスの作成と設定
+        _canvas = new MandelbrotCanvas(_tileManager);
+        CanvasContainer.Content = _canvas;
+        System.Console.WriteLine("Canvas created and set");
+        
+        // エンジン情報の表示
+        EngineLabel.Text = mandelbrotService.GetEngineInfo();
+        System.Console.WriteLine($"Engine info set: {mandelbrotService.GetEngineInfo()}");
+        
+        System.Console.WriteLine("=== MainPage Constructor Completed ===");
+        
+        // パラメータ変更の監視
+        _parameters.PropertyChanged += OnParametersChanged;
+    }
+
+    private void OnParametersChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // パラメータが変更されたら再描画
+        _canvas.Invalidate();
+    }
+
+    private void OnResetClicked(object? sender, EventArgs e)
+    {
+        _parameters.CenterX = -0.5;
+        _parameters.CenterY = 0.0;
+        _parameters.Zoom = 1.0;
+        _parameters.MaxIterations = 1000;
+        
+        _tileManager.ClearCache();
+        _canvas.Invalidate();
+    }
+
+    private void OnZoomInClicked(object? sender, EventArgs e)
+    {
+        _canvas.OnZoomGesture(2.0, Width / 2, Height / 2);
+    }
+
+    private void OnZoomOutClicked(object? sender, EventArgs e)
+    {
+        _canvas.OnZoomGesture(0.5, Width / 2, Height / 2);
+    }
+}

@@ -1,0 +1,47 @@
+# Visual Studio generated files
+*.exe
+*.obj
+*.lib
+*.exp
+*.dll
+*.pdb
+*.ilk
+
+# Output images
+*.bmp
+*.ppm
+
+# Debug files
+debug_*.txt
+
+# MAUI build output
+**/bin/
+**/obj/
+
+# Visual Studio cache/options directory
+.vs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# MSBuild temp files
+*_i.c
+*_p.c
+*_h.h
+*.tmp
+*.tmp_proj
+
+# CUDA compilation temp files
+*.cubin
+*.fatbin
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini

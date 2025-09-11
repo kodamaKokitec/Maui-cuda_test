@@ -1,0 +1,6 @@
+EXPORTS
+InitializeCuda
+CalculateMandelbrotCuda
+IsCudaAvailable
+GetGpuInfo
+CleanupCuda

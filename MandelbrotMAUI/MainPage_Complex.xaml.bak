@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MandelbrotMAUI.MainPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:MandelbrotMAUI.Views"
+             Title="Mandelbrot Explorer">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Mandelbrot Canvas with ScrollView -->
+        <ScrollView Grid.Row="0" 
+                    ZoomLevel="{Binding Zoom}"
+                    HorizontalScrollBarVisibility="Always"
+                    VerticalScrollBarVisibility="Always">
+            <ContentView x:Name="CanvasContainer" 
+                        WidthRequest="2048" 
+                        HeightRequest="2048" />
+        </ScrollView>
+
+        <!-- Control Panel -->
+        <Grid Grid.Row="1" Padding="10" BackgroundColor="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackLayout Grid.Column="0">
+                <Label Text="Zoom" FontSize="12" />
+                <Entry x:Name="ZoomEntry" Text="{Binding Zoom, StringFormat='{0:F2}'}" 
+                       FontSize="12" />
+            </StackLayout>
+
+            <StackLayout Grid.Column="1">
+                <Label Text="Max Iterations" FontSize="12" />
+                <Entry x:Name="IterationsEntry" Text="{Binding MaxIterations}" 
+                       FontSize="12" />
+            </StackLayout>
+
+            <StackLayout Grid.Column="2">
+                <Label Text="Engine" FontSize="12" />
+                <Label x:Name="EngineLabel" Text="Loading..." FontSize="10" />
+            </StackLayout>
+
+            <StackLayout Grid.Column="3" Orientation="Horizontal">
+                <Button x:Name="ResetButton" Text="Reset" Clicked="OnResetClicked" />
+                <Button x:Name="ZoomInButton" Text="Zoom In" Clicked="OnZoomInClicked" />
+                <Button x:Name="ZoomOutButton" Text="Zoom Out" Clicked="OnZoomOutClicked" />
+            </StackLayout>
+        </Grid>
+    </Grid>
+
+</ContentPage>
