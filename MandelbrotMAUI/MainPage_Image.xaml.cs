@@ -1,30 +1,99 @@
 using MandelbrotMAUI.Models;
 using MandelbrotMAUI.Services;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace MandelbrotMAUI;
 
 public partial class MainPage_Image : ContentPage
 {
+    // マンデルブロー集合の興味深い特徴点
+    public class InterestingPoint
+    {
+        public string Name { get; set; } = "";
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double OptimalZoom { get; set; }
+        public string Description { get; set; } = "";
+    }
+
+    private static readonly List<InterestingPoint> InterestingPoints = new()
+    {
+        new InterestingPoint { Name = "メインカルディオイド", X = -0.5, Y = 0.0, OptimalZoom = 5.0, Description = "マンデルブロー集合の中心部" },
+        new InterestingPoint { Name = "左の大きなバルブ", X = -1.0, Y = 0.0, OptimalZoom = 10.0, Description = "左側の大きな円形領域" },
+        new InterestingPoint { Name = "上部のスパイラル", X = -0.16, Y = 1.03, OptimalZoom = 500.0, Description = "美しいスパイラル構造" },
+        new InterestingPoint { Name = "下部のスパイラル", X = -0.16, Y = -1.03, OptimalZoom = 500.0, Description = "下側のスパイラル構造" },
+        new InterestingPoint { Name = "ミニマンデルブロー1", X = -0.7269, Y = 0.1889, OptimalZoom = 2000.0, Description = "小さなマンデルブロー集合のコピー" },
+        new InterestingPoint { Name = "ミニマンデルブロー2", X = -0.8, Y = 0.156, OptimalZoom = 5000.0, Description = "非常に小さなマンデルブロー集合" },
+        new InterestingPoint { Name = "シーホース バレー", X = -0.7463, Y = 0.1102, OptimalZoom = 10000.0, Description = "タツノオトシゴのような形状" },
+        new InterestingPoint { Name = "エレファント バレー", X = 0.25, Y = 0.0, OptimalZoom = 100.0, Description = "象のような形の谷" },
+        new InterestingPoint { Name = "ライトニング", X = -1.775, Y = 0.0, OptimalZoom = 150.0, Description = "稲妻のような形状" }
+    };
+
     private readonly IMandelbrotService _mandelbrotService;
     private double _centerX = -0.5;
     private double _centerY = 0.0;
     private double _zoom = 1.0;
-    private int _imageWidth = 1024;  // 高解像度
-    private int _imageHeight = 1024; // 高解像度
+    private int _imageWidth = 4096;  // 4K解像度で非常に詳細な表示
+    private int _imageHeight = 4096; // 4K解像度で非常に詳細な表示
     private bool _isGenerating = false;
     private Point? _lastPanPoint;
+    
+    // 画像の実際の表示サイズを追跡
+    private double _actualImageWidth = 800;
+    private double _actualImageHeight = 800;
 
     public MainPage_Image()
     {
         InitializeComponent();
         _mandelbrotService = new CudaMandelbrotService();
         
+        // 画像のサイズ変更イベントを監視
+        MandelbrotImage.SizeChanged += OnImageSizeChanged;
+        
         // ジェスチャー認識を追加
         SetupGestures();
         
+        // 初期表示を全体の特徴点が見えるように調整
+        SetOptimalInitialView();
+        
         UpdateInfo();
         _ = GenerateImageAsync();
+    }
+
+    // 全体の特徴点が見える最適な初期表示を設定
+    private void SetOptimalInitialView()
+    {
+        // 全ての特徴点の境界を計算
+        var minX = InterestingPoints.Min(p => p.X) - 0.5; // マージンを追加
+        var maxX = InterestingPoints.Max(p => p.X) + 0.5;
+        var minY = InterestingPoints.Min(p => p.Y) - 0.5;
+        var maxY = InterestingPoints.Max(p => p.Y) + 0.5;
+        
+        // 中心を計算
+        _centerX = (minX + maxX) / 2.0;
+        _centerY = (minY + maxY) / 2.0;
+        
+        // 全体が見えるズームレベルを計算
+        var rangeX = maxX - minX;
+        var rangeY = maxY - minY;
+        var maxRange = Math.Max(rangeX, rangeY);
+        
+        // 4.0は標準的な表示範囲、少し余裕を持たせる
+        _zoom = 4.0 / (maxRange * 1.2);
+    }
+
+    // 画像の実際の表示サイズが変更された時のイベントハンドラー
+    private void OnImageSizeChanged(object? sender, EventArgs e)
+    {
+        if (sender is Image image)
+        {
+            _actualImageWidth = image.Width;
+            _actualImageHeight = image.Height;
+            
+            // 座標情報を更新
+            UpdateInfo();
+        }
     }
 
     private void SetupGestures()
@@ -90,88 +159,162 @@ public partial class MainPage_Image : ContentPage
         }
     }
 
-    private void ZoomAtPosition(Point screenPosition, double zoomFactor)
+    // 全体表示ボタンのイベントハンドラー
+    private void OnResetViewClicked(object? sender, EventArgs e)
     {
-        // 画面座標を褁E��平面座標に変換
-        var complexPosition = ScreenToComplex(screenPosition);
+        if (_isGenerating) return;
         
-        // ズーム実衁E
-        _zoom *= zoomFactor;
-        _zoom = Math.Max(0.1, Math.Min(1e15, _zoom));
-        
-        // 新しいズームレベルでの画面座標を取征E
-        var newScreenPosition = ComplexToScreen(complexPosition);
-        
-        // 中忁E��調整して、クリチE��位置が変わらなぁE��ぁE��する
-        var screenCenter = new Point(MandelbrotImage.Width / 2, MandelbrotImage.Height / 2);
-        var offset = ScreenToComplex(new Point(
-            screenCenter.X + (screenPosition.X - newScreenPosition.X),
-            screenCenter.Y + (screenPosition.Y - newScreenPosition.Y)
-        ));
-        
-        _centerX = offset.X;
-        _centerY = offset.Y;
-
+        SetOptimalInitialView();
         UpdateInfo();
         _ = GenerateImageAsync();
     }
 
-    private Point ScreenToComplex(Point screenPoint)
+    // 次の特徴点ボタンのイベントハンドラー
+    private static int _currentFeatureIndex = 0;
+    private void OnNextFeatureClicked(object? sender, EventArgs e)
     {
-        // 画面サイズを取征E
-        var imageWidth = MandelbrotImage.Width;
-        var imageHeight = MandelbrotImage.Height;
+        if (_isGenerating) return;
         
-        if (imageWidth <= 0 || imageHeight <= 0)
-        {
-            imageWidth = _imageWidth;
-            imageHeight = _imageHeight;
-        }
+        _currentFeatureIndex = (_currentFeatureIndex + 1) % InterestingPoints.Count;
+        var feature = InterestingPoints[_currentFeatureIndex];
+        
+        _centerX = feature.X;
+        _centerY = feature.Y;
+        _zoom = feature.OptimalZoom;
+        
+        UpdateInfo();
+        _ = GenerateImageAsync();
+    }
 
-        // 正規化座標！E-1�E�に変換
-        var normalizedX = screenPoint.X / imageWidth;
-        var normalizedY = screenPoint.Y / imageHeight;
+    private void ZoomAtPosition(Point screenPosition, double zoomFactor)
+    {
+        // クリック点の複素平面座標を取得（ズーム前）
+        var clickComplex = ScreenToComplex(screenPosition);
+        
+        // 新しいズームレベルを計算
+        var newZoom = _zoom * zoomFactor;
+        var maxAllowedZoom = CalculateMaxZoomForInterestingPoints();
+        newZoom = Math.Max(0.1, Math.Min(maxAllowedZoom, newZoom));
+        
+        // クリック点を中心にズームするため、新しい中心を計算
+        // クリック点が画面中央に来るように中心を移動
+        _centerX = clickComplex.Real;
+        _centerY = clickComplex.Imaginary;
+        _zoom = newZoom;
+        
+        UpdateInfo();
+        _ = GenerateImageAsync();
+    }
 
-        // 褁E��平面の表示篁E��を計箁E
-        var aspectRatio = (double)_imageWidth / _imageHeight;
+    // 特徴点が画面から外れない最大ズームレベルを計算（大幅に緩和）
+    private double CalculateMaxZoomForInterestingPoints()
+    {
+        // 現在の表示領域内にある特徴点を検索
         var range = 4.0 / _zoom;
+        var halfRange = range / 2.0;
         
-        var rangeX = range * aspectRatio;
-        var rangeY = range;
+        var nearbyPoints = InterestingPoints.Where(p => 
+            Math.Abs(p.X - _centerX) <= halfRange * 2.0 && 
+            Math.Abs(p.Y - _centerY) <= halfRange * 2.0).ToList();
+        
+        if (nearbyPoints.Any())
+        {
+            // 近くに特徴点がある場合は、その特徴点の最適ズームレベルの10倍まで許可
+            var nearestPoint = nearbyPoints
+                .OrderBy(p => Math.Sqrt(Math.Pow(p.X - _centerX, 2) + Math.Pow(p.Y - _centerY, 2)))
+                .First();
+            return Math.Min(1e12, nearestPoint.OptimalZoom * 10.0);
+        }
+        
+        // 遠い場合は従来の制限を適用（ただし大幅に緩和）
+        var maxDistance = 0.0;
+        foreach (var point in InterestingPoints)
+        {
+            var distance = Math.Sqrt(Math.Pow(point.X - _centerX, 2) + Math.Pow(point.Y - _centerY, 2));
+            maxDistance = Math.Max(maxDistance, distance);
+        }
+        
+        // より深いズームを許可（従来の10倍）
+        var maxZoom = 20.0 / maxDistance;
+        return Math.Min(1e12, maxZoom);
+    }
 
-        // 褁E��平面座標に変換
-        var complexX = _centerX + (normalizedX - 0.5) * rangeX;
-        var complexY = _centerY - (normalizedY - 0.5) * rangeY; // Y軸反転
+    // 指定された中心とズームで特徴点が表示範囲内にあるかチェック（緩和版）
+    private bool IsValidCenterForInterestingPoints(double centerX, double centerY, double zoom)
+    {
+        var range = 4.0 / zoom;
+        var expandedRange = range * 3.0; // 3倍の範囲まで許可
+        
+        // より広い範囲で特徴点をチェック
+        foreach (var point in InterestingPoints)
+        {
+            if (Math.Abs(point.X - centerX) <= expandedRange && 
+                Math.Abs(point.Y - centerY) <= expandedRange)
+            {
+                return true;
+            }
+        }
+        
+        // 特徴点が完全に見えなくても、近い場合は許可
+        var nearestDistance = InterestingPoints
+            .Min(p => Math.Sqrt(Math.Pow(p.X - centerX, 2) + Math.Pow(p.Y - centerY, 2)));
+        
+        return nearestDistance <= range * 2.0; // 2倍の範囲内に最寄りの特徴点があれば許可
+    }
 
-        return new Point(complexX, complexY);
+    // 指定された位置に最も近い特徴点にナビゲート
+    private void NavigateToNearestInterestingPoint(Point targetPosition)
+    {
+        var nearestPoint = InterestingPoints
+            .OrderBy(p => Math.Sqrt(Math.Pow(p.X - targetPosition.X, 2) + Math.Pow(p.Y - targetPosition.Y, 2)))
+            .First();
+        
+        // 最も近い特徴点に移動し、適切なズームレベルを設定
+        _centerX = nearestPoint.X;
+        _centerY = nearestPoint.Y;
+        _zoom = Math.Min(_zoom, nearestPoint.OptimalZoom);
+        
+        UpdateInfo();
+        _ = GenerateImageAsync();
+    }
+
+    private Complex ScreenToComplex(Point screenPoint)
+    {
+        // 表示サイズを取得
+        var displayWidth = _actualImageWidth > 0 ? _actualImageWidth : 800;
+        var displayHeight = _actualImageHeight > 0 ? _actualImageHeight : 800;
+
+        // 正規化座標（-0.5～0.5）に変換
+        var normalizedX = (screenPoint.X / displayWidth) - 0.5;
+        var normalizedY = (screenPoint.Y / displayHeight) - 0.5; // Y軸は反転しない（統一性のため）
+
+        // 複素平面の表示範囲を計算
+        var scale = 4.0 / _zoom;
+        var aspectRatio = displayWidth / displayHeight;
+        
+        // 複素平面座標に変換（アスペクト比考慮）
+        var real = _centerX + normalizedX * scale * aspectRatio;
+        var imag = _centerY + normalizedY * scale;
+
+        return new Complex(real, imag);
     }
 
     private Point ComplexToScreen(Point complexPoint)
     {
-        // 画面サイズを取征E
-        var imageWidth = MandelbrotImage.Width;
-        var imageHeight = MandelbrotImage.Height;
-        
-        if (imageWidth <= 0 || imageHeight <= 0)
-        {
-            imageWidth = _imageWidth;
-            imageHeight = _imageHeight;
-        }
+        // 表示サイズを取得
+        var displayWidth = _actualImageWidth > 0 ? _actualImageWidth : 800;
+        var displayHeight = _actualImageHeight > 0 ? _actualImageHeight : 800;
 
-        // 褁E��平面の表示篁E��を計箁E
-        var aspectRatio = (double)_imageWidth / _imageHeight;
+        // 複素平面の表示範囲を計算
         var range = 4.0 / _zoom;
         
-        var rangeX = range * aspectRatio;
-        var rangeY = range;
-
         // 正規化座標に変換
-        var normalizedX = (complexPoint.X - _centerX) / rangeX + 0.5;
-        var normalizedY = -(complexPoint.Y - _centerY) / rangeY + 0.5; // Y軸反転
+        var normalizedX = (complexPoint.X - _centerX) / range;
+        var normalizedY = (complexPoint.Y - _centerY) / range;
 
         // 画面座標に変換
-        var screenX = normalizedX * imageWidth;
-        var screenY = normalizedY * imageHeight;
+        var screenX = (normalizedX + 0.5) * displayWidth;
+        var screenY = (0.5 - normalizedY) * displayHeight; // Y軸反転
 
         return new Point(screenX, screenY);
     }
@@ -179,8 +322,26 @@ public partial class MainPage_Image : ContentPage
     private void UpdateInfo()
     {
         var adaptiveIterations = CalculateAdaptiveIterations(_zoom);
-        InfoLabel.Text = $"Zoom: {_zoom:E2}x, Center: ({_centerX:F6}, {_centerY:F6}), Iterations: {adaptiveIterations}";
-        StatusLabel.Text = $"Engine: {_mandelbrotService.GetEngineInfo()}";
+        var displaySize = $"{_actualImageWidth:F0}×{_actualImageHeight:F0}";
+        
+        // 現在表示されている特徴点を検出
+        var currentFeature = GetCurrentlyDisplayedFeature();
+        var featureInfo = currentFeature != null ? $" - {currentFeature.Name}" : "";
+        
+        InfoLabel.Text = $"表示サイズ: {displaySize}, ズーム: {_zoom:E2}x, 中心: ({_centerX:F6}, {_centerY:F6}), 反復数: {adaptiveIterations}{featureInfo}";
+        StatusLabel.Text = $"エンジン: {_mandelbrotService.GetEngineInfo()}, 解像度: {_imageWidth}×{_imageHeight}";
+    }
+
+    // 現在表示されている特徴点を取得
+    private InterestingPoint? GetCurrentlyDisplayedFeature()
+    {
+        var range = 4.0 / _zoom;
+        var threshold = range * 0.3; // 30%の範囲内にあれば「表示されている」とみなす
+        
+        return InterestingPoints
+            .Where(p => Math.Abs(p.X - _centerX) <= threshold && Math.Abs(p.Y - _centerY) <= threshold)
+            .OrderBy(p => Math.Sqrt(Math.Pow(p.X - _centerX, 2) + Math.Pow(p.Y - _centerY, 2)))
+            .FirstOrDefault();
     }
 
     private void OnPanUpdated(object? sender, PanUpdatedEventArgs e)
@@ -199,24 +360,34 @@ public partial class MainPage_Image : ContentPage
                     var deltaX = e.TotalX - _lastPanPoint.Value.X;
                     var deltaY = e.TotalY - _lastPanPoint.Value.Y;
 
-                    // 褁E��平面での移動量を正確に計箁E
-                    var aspectRatio = (double)_imageWidth / _imageHeight;
+                    // 画面移動量を複素平面移動量に変換
+                    var displayWidth = _actualImageWidth > 0 ? _actualImageWidth : 800;
+                    var displayHeight = _actualImageHeight > 0 ? _actualImageHeight : 800;
                     var range = 4.0 / _zoom;
+
+                    var complexDeltaX = -(deltaX / displayWidth) * range;
+                    var complexDeltaY = (deltaY / displayHeight) * range; // Y軸反転
+
+                    var newCenterX = _centerX + complexDeltaX;
+                    var newCenterY = _centerY + complexDeltaY;
                     
-                    var rangeX = range * aspectRatio;
-                    var rangeY = range;
-
-                    var imageWidth = MandelbrotImage.Width > 0 ? MandelbrotImage.Width : _imageWidth;
-                    var imageHeight = MandelbrotImage.Height > 0 ? MandelbrotImage.Height : _imageHeight;
-
-                    var complexDeltaX = -deltaX * rangeX / imageWidth;
-                    var complexDeltaY = deltaY * rangeY / imageHeight; // Y軸反転
-
-                    _centerX += complexDeltaX;
-                    _centerY += complexDeltaY;
-
+                    // 新しい中心位置で特徴点が表示範囲内にあることを確認（緩和版）
+                    if (IsValidCenterForInterestingPoints(newCenterX, newCenterY, _zoom))
+                    {
+                        _centerX = newCenterX;
+                        _centerY = newCenterY;
+                    }
+                    else
+                    {
+                        // 制限されても部分的な移動は許可
+                        var partialMoveX = complexDeltaX * 0.5; // 50%の移動を許可
+                        var partialMoveY = complexDeltaY * 0.5;
+                        
+                        _centerX += partialMoveX;
+                        _centerY += partialMoveY;
+                    }
+                    
                     _lastPanPoint = new Point(e.TotalX, e.TotalY);
-                    
                     UpdateInfo();
                 }
                 break;
@@ -235,7 +406,12 @@ public partial class MainPage_Image : ContentPage
         if (e.Status == GestureStatus.Running)
         {
             var newZoom = _zoom * e.Scale;
-            _zoom = Math.Max(0.1, Math.Min(1e15, newZoom));
+            
+            // 特徴点が画面から外れないような最大ズームレベルを適用
+            var maxAllowedZoom = CalculateMaxZoomForInterestingPoints();
+            newZoom = Math.Max(0.1, Math.Min(maxAllowedZoom, newZoom));
+            
+            _zoom = newZoom;
             UpdateInfo();
         }
         else if (e.Status == GestureStatus.Completed)
@@ -308,14 +484,22 @@ public partial class MainPage_Image : ContentPage
 
     private int CalculateAdaptiveIterations(double zoom)
     {
-        // ズームレベルに応じて反復回数を動皁E��調整
-        // 高ズーム時には詳細な墁E��構造を表示するため反復回数を増加
-        var baseIterations = 100;
+        // ズームレベルに応じて反復回数を動的に調整
+        // 4K解像度に対応した高詳細設定
+        var baseIterations = 256; // 基本反復数を増加
         var logZoom = Math.Log10(Math.Max(1.0, zoom));
-        var adaptiveIterations = (int)(baseIterations + logZoom * 50);
         
-        // 最封E00、最大2000で制陁E
-        return Math.Max(100, Math.Min(2000, adaptiveIterations));
+        // より急激に反復数を増加させて詳細を確保
+        var adaptiveIterations = (int)(baseIterations + logZoom * 100);
+        
+        // 高ズーム時のさらなる詳細化
+        if (zoom > 1000)
+        {
+            adaptiveIterations += (int)((zoom / 1000) * 200);
+        }
+        
+        // 最小512、最大8192で制限（4K解像度対応）
+        return Math.Max(512, Math.Min(8192, adaptiveIterations));
     }
 
     private void AnalyzeColors(byte[] rgbaData)
@@ -352,14 +536,14 @@ public partial class MainPage_Image : ContentPage
         }
     }
 
-    private ImageSource CreateImageSourceFromRgbaData(byte[] rgbaData, int width, int height)
+    private ImageSource? CreateImageSourceFromRgbaData(byte[] rgbaData, int width, int height)
     {
         try
         {
-            // RGBAチE�EタからBMPバイト�E列を作�E
+            // RGBAデータからBMPバイト配列を作成
             var bmpData = CreateBmpFromRgbaData(rgbaData, width, height);
             
-            // BMPチE�EタからImageSourceを作�E
+            // BMPデータからImageSourceを作成
             return ImageSource.FromStream(() => new MemoryStream(bmpData));
         }
         catch (Exception ex)
