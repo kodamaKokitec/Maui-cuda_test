@@ -37,7 +37,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         _renderedTileData = new ConcurrentDictionary<TileKey, TileRenderData>();
         Drawable = this;
         
-        // ジェスチャー認識の設定
+        // ジェスチャー認識�E設宁E
         var panGesture = new PanGestureRecognizer();
         panGesture.PanUpdated += OnPanUpdated;
         GestureRecognizers.Add(panGesture);
@@ -55,25 +55,25 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        // 背景を黒で塗りつぶし
+        // 背景を黒で塗りつぶぁE
         canvas.FillColor = Colors.Black;
         canvas.FillRectangle(dirtyRect);
 
-        // ビューポートサイズを更新
+        // ビューポ�Eトサイズを更新
         _viewport.ViewportWidth = dirtyRect.Width;
         _viewport.ViewportHeight = dirtyRect.Height;
 
-        // 表示範囲のタイルを計算
+        // 表示篁E��のタイルを計箁E
         var visibleTiles = _tileManager.CalculateVisibleTiles(
             dirtyRect.Width, dirtyRect.Height, _viewport);
 
-        // 各タイルを描画
+        // 吁E��イルを描画
         foreach (var tileInfo in visibleTiles)
         {
             DrawTile(canvas, tileInfo);
         }
 
-        // デバッグ情報を表示
+        // チE��チE��惁E��を表示
         DrawDebugInfo(canvas, dirtyRect);
     }
 
@@ -82,14 +82,14 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         var zoomLevel = GetZoomLevel(_viewport.Parameters.Zoom);
         var tileKey = new TileKey(tileInfo.X, tileInfo.Y, zoomLevel);
 
-        // RGBAデータによる直接描画をチェック
+        // RGBAチE�Eタによる直接描画をチェチE��
         if (_renderedTileData.TryGetValue(tileKey, out var tileData))
         {
             DrawTileFromRgbaData(canvas, tileData);
             return;
         }
 
-        // キャッシュされた画像をチェック
+        // キャチE��ュされた画像をチェチE��
         if (_renderedTiles.TryGetValue(tileKey, out var image))
         {
             canvas.DrawImage(image, 
@@ -104,14 +104,14 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         canvas.DrawRectangle((float)tileInfo.ScreenX, (float)tileInfo.ScreenY, 
                            (float)tileInfo.Size, (float)tileInfo.Size);
 
-        // 中央に "Computing..." テキストを表示
+        // 中央に "Computing..." チE��ストを表示
         canvas.FontColor = Colors.White;
         canvas.FontSize = 10;
         canvas.DrawString("Computing...", 
             (float)tileInfo.ScreenX + 10, (float)tileInfo.ScreenY + 10, 
             100, 20, HorizontalAlignment.Left, VerticalAlignment.Top);
 
-        // タイルデータを非同期取得
+        // タイルチE�Eタを非同期取征E
         _ = Task.Run(async () =>
         {
             try
@@ -127,20 +127,20 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
 
                 System.Diagnostics.Debug.WriteLine($"Tile computation completed for ({tileInfo.X}, {tileInfo.Y}), data length: {imageData?.Length ?? 0}");
 
-                // CUDA実装: RGBAデータを直接描画用に保存
+                // CUDA実裁E RGBAチE�Eタを直接描画用に保孁E
                 if (imageData != null && imageData.Length > 0)
                 {
                     System.Diagnostics.Debug.WriteLine($"Creating tile data for ({tileInfo.X}, {tileInfo.Y})");
                     var tileSize = _tileManager.TileSize;
                     
-                    // データサンプルを詳しく確認
+                    // チE�Eタサンプルを詳しく確誁E
                     if (imageData.Length >= 64)
                     {
                         System.Diagnostics.Debug.WriteLine($"RGBA data analysis for tile ({tileInfo.X}, {tileInfo.Y}):");
                         System.Diagnostics.Debug.WriteLine($"Total length: {imageData.Length} bytes");
                         System.Diagnostics.Debug.WriteLine($"Expected size: {tileSize}x{tileSize} = {tileSize * tileSize * 4} bytes");
                         
-                        // 複数のサンプルピクセルを確認
+                        // 褁E��のサンプルピクセルを確誁E
                         for (int i = 0; i < Math.Min(16, imageData.Length / 4); i++)
                         {
                             var pixelIndex = i * 4;
@@ -151,7 +151,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                             System.Diagnostics.Debug.WriteLine($"Pixel {i}: R={r}, G={g}, B={b}, A={a}");
                         }
                         
-                        // 色の分布を確認
+                        // 色の刁E��E��確誁E
                         int redCount = 0, greenCount = 0, blueCount = 0, blackCount = 0;
                         for (int i = 0; i < imageData.Length; i += 4)
                         {
@@ -169,7 +169,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                         System.Diagnostics.Debug.WriteLine($"Color distribution - Red: {redCount}/{totalPixels}, Green: {greenCount}/{totalPixels}, Blue: {blueCount}/{totalPixels}, Black: {blackCount}/{totalPixels}");
                     }
                     
-                    // RGBAデータをタイル情報として保存
+                    // RGBAチE�Eタをタイル惁E��として保孁E
                     var tileRenderData = new TileRenderData
                     {
                         X = tileInfo.X,
@@ -180,7 +180,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                         ScreenY = tileInfo.ScreenY
                     };
                     
-                    // キャッシュに追加（IImageの代わりにRGBAデータを保存）
+                    // キャチE��ュに追加�E�EImageの代わりにRGBAチE�Eタを保存！E
                     _renderedTileData.TryAdd(tileKey, tileRenderData);
                     System.Diagnostics.Debug.WriteLine($"Tile data cached for ({tileInfo.X}, {tileInfo.Y})");
                 }
@@ -189,7 +189,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                     System.Diagnostics.Debug.WriteLine($"No image data received for tile ({tileInfo.X}, {tileInfo.Y})");
                 }
                 
-                // UIスレッドで再描画
+                // UIスレチE��で再描画
                 System.Diagnostics.Debug.WriteLine($"Requesting UI invalidation for tile ({tileInfo.X}, {tileInfo.Y})");
                 MainThread.BeginInvokeOnMainThread(() => Invalidate());
             }
@@ -204,7 +204,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                     File.AppendAllText(logFile, $"{DateTime.Now:HH:mm:ss.fff} - Tile computation error for ({tileInfo.X}, {tileInfo.Y}): {ex.Message}\n");
                     File.AppendAllText(logFile, $"{DateTime.Now:HH:mm:ss.fff} - Stack trace: {ex.StackTrace}\n");
                 }
-                catch { /* ログファイル書き込み失敗は無視 */ }
+                catch { /* ログファイル書き込み失敗�E無要E*/ }
             }
         });
     }
@@ -213,7 +213,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
     {
         try
         {
-            // RGBAデータを使って直接ピクセルを描画
+            // RGBAチE�Eタを使って直接ピクセルを描画
             var rgbaData = tileData.RgbaData;
             var size = tileData.Size;
             var startX = (float)tileData.ScreenX;
@@ -221,11 +221,11 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
             
             System.Diagnostics.Debug.WriteLine($"Drawing tile ({tileData.X}, {tileData.Y}) from RGBA data: {rgbaData.Length} bytes, size {size}x{size}");
             
-            // ピクセルサイズを計算（タイルサイズ / データサイズ）
+            // ピクセルサイズを計算（タイルサイズ / チE�Eタサイズ�E�E
             var pixelWidth = (float)tileData.Size / size;
             var pixelHeight = (float)tileData.Size / size;
             
-            // サンプリング間隔（パフォーマンスのため、すべてのピクセルを描画しない）
+            // サンプリング間隔�E�パフォーマンスのため、すべてのピクセルを描画しなぁE��E
             var sampleRate = Math.Max(1, size / 64); // 最大64x64で描画
             
             int pixelsDrawn = 0;
@@ -242,36 +242,36 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                         var g = rgbaData[pixelIndex + 1];
                         var b = rgbaData[pixelIndex + 2];
                         
-                        // デバッグ用カウント
+                        // チE��チE��用カウンチE
                         if (r > g && r > b && r > 50) redPixels++;
                         else if (g > r && g > b && g > 50) greenPixels++;
                         else if (b > r && b > g && b > 50) bluePixels++;
                         
-                        // 黒以外のピクセルのみ描画
+                        // 黒以外�Eピクセルのみ描画
                         if (r > 0 || g > 0 || b > 0)
                         {
-                            // デバッグ：色値の詳細ログ
-                            if (pixelsDrawn < 20) // 最初の20ピクセルのみログ
+                            // チE��チE���E�色値の詳細ログ
+                            if (pixelsDrawn < 20) // 最初�E20ピクセルのみログ
                             {
                                 System.Diagnostics.Debug.WriteLine($"Drawing pixel ({x}, {y}): RGB({r}, {g}, {b})");
                             }
                             
                             var color = Color.FromRgb(r, g, b);
                             
-                            // デバッグ：Colorオブジェクトの値を確認
+                            // チE��チE���E�Colorオブジェクト�E値を確誁E
                             if (pixelsDrawn < 5)
                             {
                                 System.Diagnostics.Debug.WriteLine($"Color object: R={color.Red}, G={color.Green}, B={color.Blue}, A={color.Alpha}");
                             }
                             
-                            // テスト：元の色の代わりに固定色を使用して問題を特定
+                            // チE��ト：�Eの色の代わりに固定色を使用して問題を特宁E
                             if (pixelsDrawn % 4 == 0)
                                 color = Colors.Blue;
                             else if (pixelsDrawn % 4 == 1)
                                 color = Colors.Green;
                             else if (pixelsDrawn % 4 == 2)
                                 color = Colors.Yellow;
-                            // else 元の色を使用
+                            // else 允E�E色を使用
                             
                             canvas.FillColor = color;
                             
@@ -345,7 +345,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         var position = e.GetPosition(this);
         if (position.HasValue)
         {
-            // ダブルタップでズームイン
+            // ダブルタチE�Eでズームイン
             OnZoomGesture(2.0, position.Value.X, position.Value.Y);
         }
     }
@@ -367,7 +367,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         var newZoom = _viewport.Parameters.Zoom * zoomFactor;
         _viewport.Parameters.Zoom = Math.Max(0.1, Math.Min(1e15, newZoom));
         
-        // ズーム中心を維持
+        // ズーム中忁E��維持E
         var (newScreenX, newScreenY) = _viewport.ComplexToScreen(complexX, complexY);
         var deltaX = centerX - newScreenX;
         var deltaY = centerY - newScreenY;
@@ -384,7 +384,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
     {
         var currentZoomLevel = GetZoomLevel(_viewport.Parameters.Zoom);
         
-        // 古い画像タイルを削除
+        // 古ぁE��像タイルを削除
         var keysToRemove = _renderedTiles.Keys
             .Where(k => Math.Abs(k.ZoomLevel - currentZoomLevel) > 2)
             .ToList();
@@ -397,7 +397,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
             }
         }
         
-        // 古いRGBAデータタイルを削除
+        // 古いRGBAチE�Eタタイルを削除
         var dataKeysToRemove = _renderedTileData.Keys
             .Where(k => Math.Abs(k.ZoomLevel - currentZoomLevel) > 2)
             .ToList();
@@ -414,7 +414,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         {
             System.Diagnostics.Debug.WriteLine($"Creating image from RGBA data: {width}x{height}, data length: {rgbaData.Length}");
             
-            // RGBAデータから直接画像を作成するシンプルな方法
+            // RGBAチE�Eタから直接画像を作�Eするシンプルな方況E
             // とりあえずBitmapImageを使用
             var bmpData = CreateBmpFromRgba(rgbaData, width, height);
             System.Diagnostics.Debug.WriteLine($"BMP data created, length: {bmpData.Length}");
@@ -422,11 +422,11 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
             var stream = new MemoryStream(bmpData);
             
 #if WINDOWS
-            // Windowsプラットフォーム用の画像作成
+            // WindowsプラチE��フォーム用の画像作�E
             System.Diagnostics.Debug.WriteLine("Creating image using platform service");
             try
             {
-                // より安全な方法で画像を作成
+                // より安�Eな方法で画像を作�E
                 var platformImage = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(stream);
                 System.Diagnostics.Debug.WriteLine($"Image created successfully using Platform: {platformImage != null}");
                 return platformImage;
@@ -434,7 +434,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
             catch (Exception ex2)
             {
                 System.Diagnostics.Debug.WriteLine($"Platform image creation failed: {ex2.Message}");
-                // フォールバック: 代替方法
+                // フォールバック: 代替方況E
                 return null;
             }
 #else
@@ -452,7 +452,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                 File.AppendAllText(logFile, $"{DateTime.Now:HH:mm:ss.fff} - Image creation error: {ex.Message}\n");
                 File.AppendAllText(logFile, $"{DateTime.Now:HH:mm:ss.fff} - Stack trace: {ex.StackTrace}\n");
             }
-            catch { /* ログファイル書き込み失敗は無視 */ }
+            catch { /* ログファイル書き込み失敗�E無要E*/ }
             
             return null;
         }
@@ -460,11 +460,11 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
 
     private byte[] CreateBmpFromRgba(byte[] rgbaData, int width, int height)
     {
-        // BMPヘッダーを作成
+        // BMPヘッダーを作�E
         var fileHeaderSize = 14;
         var infoHeaderSize = 40;
         var headerSize = fileHeaderSize + infoHeaderSize;
-        var stride = ((width * 3 + 3) / 4) * 4; // 4バイト境界に調整
+        var stride = ((width * 3 + 3) / 4) * 4; // 4バイト墁E��に調整
         var imageSize = stride * height;
         var fileSize = headerSize + imageSize;
 
@@ -478,7 +478,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         BitConverter.GetBytes(0).CopyTo(bmp, offset); offset += 4; // Reserved
         BitConverter.GetBytes(headerSize).CopyTo(bmp, offset); offset += 4;
 
-        // BMP情報ヘッダー (40 bytes)
+        // BMP惁E��ヘッダー (40 bytes)
         BitConverter.GetBytes(infoHeaderSize).CopyTo(bmp, offset); offset += 4;
         BitConverter.GetBytes(width).CopyTo(bmp, offset); offset += 4;
         BitConverter.GetBytes(-height).CopyTo(bmp, offset); offset += 4; // 負の値でTop-Down
@@ -491,7 +491,7 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
         BitConverter.GetBytes(0).CopyTo(bmp, offset); offset += 4; // Colors used
         BitConverter.GetBytes(0).CopyTo(bmp, offset); offset += 4; // Important colors
 
-        // ピクセルデータ (BGR形式、各行は4バイト境界)
+        // ピクセルチE�Eタ (BGR形式、各行�E4バイト墁E��)
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -500,10 +500,10 @@ public class MandelbrotCanvas : GraphicsView, IDrawable
                 bmp[offset++] = rgbaData[rgbaIndex + 2]; // B
                 bmp[offset++] = rgbaData[rgbaIndex + 1]; // G
                 bmp[offset++] = rgbaData[rgbaIndex + 0]; // R
-                // Alpha チャンネルはスキップ
+                // Alpha チャンネルはスキチE�E
             }
             
-            // 行の残りを0でパディング（4バイト境界に調整）
+            // 行�E残りめEでパディング�E�Eバイト墁E��に調整�E�E
             while ((offset - headerSize) % 4 != 0)
             {
                 bmp[offset++] = 0;

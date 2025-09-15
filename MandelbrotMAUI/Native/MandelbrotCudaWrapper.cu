@@ -98,23 +98,19 @@ __global__ void mandelbrot_kernel_advanced(unsigned char* image, int width, int 
                 r = c; g = 0; b = x;
             }
             
-<<<<<<< HEAD
             image[pixel_idx] = (unsigned char)(r * 255);     // R
             image[pixel_idx + 1] = (unsigned char)(g * 255); // G
             image[pixel_idx + 2] = (unsigned char)(b * 255); // B
-=======
             // Apply brightness based on iteration count
             float brightness = 0.5f + 0.5f * scaled_iter;
             
             image[pixel_idx] = (unsigned char)(r * brightness * 255);     // R
             image[pixel_idx + 1] = (unsigned char)(g * brightness * 255); // G
             image[pixel_idx + 2] = (unsigned char)(b * brightness * 255); // B
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
         }
     }
 }
 
-<<<<<<< HEAD
 // Global variables for CUDA context
 static bool cuda_initialized = false;
 static int cuda_device_count = 0;
@@ -206,7 +202,6 @@ extern "C" int IsCudaAvailable() {
 extern "C" void GetGpuInfo(char* info_buffer, int buffer_size) {
     if (!info_buffer || buffer_size <= 0) {
         return;
-=======
 CUDA_WRAPPER_API int GenerateMandelbrot(unsigned char* image_data, int width, int height, 
                                         double center_x, double center_y, double zoom, int max_iter) {
     // Validate parameters
@@ -260,26 +255,21 @@ CUDA_WRAPPER_API int GenerateMandelbrot(unsigned char* image_data, int width, in
 CUDA_WRAPPER_API int GetCudaDeviceInfo(char* device_name, int name_size, int* compute_major, int* compute_minor) {
     if (!device_name || name_size <= 0 || !compute_major || !compute_minor) {
         return CUDA_ERROR_INVALID_PARAMETER;
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
     }
     
     int device_count;
     cudaError_t err = cudaGetDeviceCount(&device_count);
-<<<<<<< HEAD
     
     if (err != cudaSuccess || device_count == 0) {
         snprintf(info_buffer, buffer_size, "No CUDA devices available");
         return;
-=======
     if (err != cudaSuccess || device_count == 0) {
         return CUDA_ERROR_NO_DEVICE;
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
     }
     
     cudaDeviceProp prop;
     err = cudaGetDeviceProperties(&prop, 0);
     if (err != cudaSuccess) {
-<<<<<<< HEAD
         snprintf(info_buffer, buffer_size, "Failed to get device properties");
         return;
     }
@@ -300,7 +290,6 @@ extern "C" void CleanupCuda() {
         cuda_initialized = false;
     }
 }
-=======
         return CUDA_ERROR_DEVICE_QUERY;
     }
     
@@ -329,4 +318,3 @@ CUDA_WRAPPER_API int TestCudaOperation() {
     cudaFree(test_ptr);
     return CUDA_SUCCESS;
 }
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

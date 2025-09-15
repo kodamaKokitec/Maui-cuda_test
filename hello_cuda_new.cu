@@ -10,7 +10,7 @@ int main() {
     printf("CUDA Hello World Test\n");
     printf("=====================\n");
     
-    // GPU惁E��の表示
+    // GPU information display
     int deviceCount;
     cudaGetDeviceCount(&deviceCount);
     printf("Number of CUDA devices: %d\n", deviceCount);
@@ -23,11 +23,11 @@ int main() {
         printf("Total global memory: %.2f GB\n", prop.totalGlobalMem / (1024.0 * 1024.0 * 1024.0));
     }
     
-    // カーネル実衁E
+    // Kernel execution
     printf("\nExecuting CUDA kernel...\n");
     hello_kernel<<<2, 4>>>();
     
-    // チE��イス同期
+    // Device synchronization
     cudaDeviceSynchronize();
     
     printf("\nCUDA test completed successfully!\n");

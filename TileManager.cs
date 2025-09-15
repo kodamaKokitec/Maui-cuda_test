@@ -25,18 +25,18 @@ namespace MandelbrotMAUI.Services
             var zoomLevel = GetZoomLevel(zoom);
             var tileKey = new TileKey { X = tileX, Y = tileY, ZoomLevel = zoomLevel };
 
-            // キャッシュチェック
+            // キャチE��ュチェチE��
             if (_tileCache.TryGetValue(tileKey, out var cachedTile))
             {
                 cachedTile.LastAccessed = DateTime.Now;
                 return cachedTile.ImageData;
             }
 
-            // 計算中チェック
+            // 計算中チェチE��
             var computingTile = new TileData { IsComputing = true };
             if (!_tileCache.TryAdd(tileKey, computingTile))
             {
-                // 他のスレッドが計算中
+                // 他�EスレチE��が計算中
                 while (_tileCache.TryGetValue(tileKey, out var tile) && tile.IsComputing)
                 {
                     await Task.Delay(10);
@@ -46,16 +46,16 @@ namespace MandelbrotMAUI.Services
 
             try
             {
-                // タイル座標を複素平面座標に変換
+                // タイル座標を褁E��平面座標に変換
                 double pixelSize = 1.0 / zoom;
                 double tileCenterX = centerX + (tileX - 0.5) * _tileSize * pixelSize;
                 double tileCenterY = centerY + (0.5 - tileY) * _tileSize * pixelSize;
 
-                // CUDA演算実行
+                // CUDA演算実衁E
                 var imageData = await _cudaService.ComputeTileAsync(
                     tileCenterX, tileCenterY, zoom, _tileSize, _tileSize, maxIterations);
 
-                // キャッシュに保存
+                // キャチE��ュに保孁E
                 var newTile = new TileData 
                 { 
                     ImageData = imageData, 
@@ -64,7 +64,7 @@ namespace MandelbrotMAUI.Services
                 };
                 _tileCache.TryUpdate(tileKey, newTile, computingTile);
 
-                // キャッシュサイズ管理
+                // キャチE��ュサイズ管琁E
                 await ManageCacheSize();
 
                 return imageData;
@@ -78,7 +78,7 @@ namespace MandelbrotMAUI.Services
 
         private int GetZoomLevel(double zoom)
         {
-            // ズームレベルを段階的に分類
+            // ズームレベルを段階的に刁E��E
             return (int)Math.Log2(Math.Max(1, zoom));
         }
 

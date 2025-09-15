@@ -2,7 +2,7 @@
 echo CUDA Mandelbrot Set Visualization - Build Script
 echo ===============================================
 
-REM CUDA Toolkitのパスを確認
+REM CUDA Toolkitのパスを確誁E
 where nvcc >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo Error: CUDA Toolkit not found in PATH
@@ -12,7 +12,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-REM Visual Studio環境の確認
+REM Visual Studio環墁E�E確誁E
 where cl >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo Error: Visual Studio C++ compiler not found

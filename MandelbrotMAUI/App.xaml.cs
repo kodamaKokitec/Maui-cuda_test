@@ -1,4 +1,4 @@
-ï»¿using MandelbrotMAUI.Services;
+using MandelbrotMAUI.Services;
 
 namespace MandelbrotMAUI;
 
@@ -13,7 +13,7 @@ public partial class App : Application
 		}
 		catch
 		{
-			// ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«æ›¸ãè¾¼ã¿ã«å¤±æ•—ã—ã¦ã‚‚ã‚¢ãƒ—ãƒªã‚’ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã•ã›ãªã„
+			// ƒƒOƒtƒ@ƒCƒ‹‘‚«‚İ‚É¸”s‚µ‚Ä‚àƒAƒvƒŠ‚ğƒNƒ‰ƒbƒVƒ…‚³‚¹‚È‚¢
 		}
 	}
 
@@ -34,7 +34,7 @@ public partial class App : Application
 		try
 		{
 			LogToFile("Creating services...");
-			// CUDAã‚µãƒ¼ãƒ“ã‚¹ã‚’ä½¿ç”¨ï¼ˆCUDAãŒåˆ©ç”¨ã§ããªã„å ´åˆã¯è‡ªå‹•çš„ã«CPUã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ï¼‰
+			// CUDAƒT[ƒrƒX‚ğg—piCUDA‚ª—˜—p‚Å‚«‚È‚¢ê‡‚Í©“®“I‚ÉCPU‚ÉƒtƒH[ƒ‹ƒoƒbƒNj
 			var mandelbrotService = new CudaMandelbrotService();
 			
 			LogToFile($"Mandelbrot Service: {mandelbrotService.GetEngineInfo()}");
@@ -44,7 +44,7 @@ public partial class App : Application
 			LogToFile("Creating Window...");
 			var window = new Window(mainPage);
 			
-			// Windowã‚¤ãƒ™ãƒ³ãƒˆã®ç›£è¦–
+			// WindowƒCƒxƒ“ƒg‚ÌŠÄ‹
 			window.Created += (sender, e) => LogToFile("Window.Created event fired");
 			window.Activated += (sender, e) => LogToFile("Window.Activated event fired");
 			window.Deactivated += (sender, e) => LogToFile("Window.Deactivated event fired");
@@ -62,7 +62,7 @@ public partial class App : Application
 			Console.WriteLine($"=== ERROR in CreateWindow: {ex.Message} ===");
 			Console.WriteLine($"Stack trace: {ex.StackTrace}");
 			
-			// ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯: ã‚·ãƒ³ãƒ—ãƒ«ãªãƒšãƒ¼ã‚¸ã‚’ä½œæˆ
+			// ƒtƒH[ƒ‹ƒoƒbƒN: ƒVƒ“ƒvƒ‹‚Èƒy[ƒW‚ğì¬
 			var fallbackPage = new ContentPage
 			{
 				Title = "Error",

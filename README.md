@@ -2,77 +2,13 @@
 
 このプロジェクトは、CUDA（Compute Unified Device Architecture）を使用してMandelbrot集合を可視化するテストプログラムです。VRAMにデータを移動し、GPU上で並列演算を行い、視覚的な結果を生成します。
 
-<<<<<<< HEAD
-## 機能
-
-- CUDA を使用した並列Mandelbrot集合計算
-- VRAMへのデータ転送とGPU演算
-- PPMフォーマットでの画像出力
-- パフォーマンス測定機能
-
-## 必要環境
-
-- Windows 10/11
-- NVIDIA GPU（CUDA対応）
-- CUDA Toolkit 12.x以降
-- Visual Studio 2019/2022（C++コンパイラ）
-- CUDA対応GPU（Compute Capability 3.5以降推奨）
-
-## ビルド方法
-
-```bash
-# Visual Studio Developer Command Promptで実行
-nvcc -o mandelbrot_cuda mandelbrot_cuda.cu
-```
-
-## 実行方法
-
-```bash
-# 実行ファイルを起動
-./mandelbrot_cuda
-```
-
-生成された `mandelbrot.ppm` ファイルを画像ビューアで開いて結果を確認できます。
-
-## 出力
-
-- `mandelbrot.bmp`: Mandelbrot集合の可視化画像（Windows標準対応）
-- `mandelbrot.ppm`: Mandelbrot集合の可視化画像（Portable Pixmap形式）
-- コンソール出力: GPU情報、実行時間、パフォーマンス統計
-
-## 画像の確認方法
-
-**Windows標準の方法:**
-
-- `mandelbrot.bmp`をダブルクリックしてWindowsフォトビューアーで開く
-
-**その他の画像ビューア:**
-
-- IrfanView, GIMP, Photoshop等で両形式を開ける
-
-## 技術的詳細
-
-- 画像サイズ: 1024x1024ピクセル
-- 最大反復回数: 1000回
-- ブロックサイズ: 16x16スレッド
-- メモリ使用量: 約12MB（GPU側）
-
-## ファイル構成
-
-- `mandelbrot_cuda_clean.cu`: メインのCUDAプログラム
-- `hello_cuda.cu`: 基本的なCUDAテストプログラム
-- `build_clean.bat`: コンパイル用バッチファイル
-- `README.md`: このファイル
-- `mandelbrot.bmp`: 生成される出力画像（Windows標準形式）
-- `mandelbrot.ppm`: 生成される出力画像（PPM形式）
-=======
 ## 🚀 機能
 
 ### 高性能CUDAエンジン
 - CUDA 12.4を使用した並列Mandelbrot集合計算
-- RTX 4060 Tiで1294.56 Mpixels/secの高速処理
-- HSV色空間による鮮やかな色彩表現
-- 対数スケーリングによる境界構造の詳細可視化
+- RTX 4060 Tiで11.04 Mpixels/secの高速処理
+- RGB色空間による鮮やかな色彩表現
+- 詳細な性能統計とGPU情報表示
 
 ### .NET MAUI インタラクティブアプリケーション
 - 1024x1024高解像度レンダリング
@@ -89,16 +25,16 @@ nvcc -o mandelbrot_cuda mandelbrot_cuda.cu
 - Windows 10/11
 - NVIDIA GPU（CUDA対応、RTX 4060 Ti推奨）
 - CUDA Toolkit 12.x以降
-- Visual Studio 2022（C++コンパイラ）
-- .NET 10.0 SDK
+- Visual Studio 2019/2022（C++コンパイラ）
+- .NET 10.0 SDK（MAUIアプリ用）
 - CUDA対応GPU（Compute Capability 3.5以降推奨）
 
 ## 📁 プロジェクト構成
 
 ### CUDAコア
-- `mandelbrot_cuda_clean.cu`: スタンドアロンCUDAベースライン
+- `mandelbrot_cuda_clean_fixed.cu`: 修正済みMandelbrotCUDAプログラム
+- `hello_cuda_new.cu`: 基本CUDAテストプログラム
 - `MandelbrotCudaWrapper.cu`: P/Invokeブリッジ（高度な色彩アルゴリズム）
-- `hello_cuda.cu`: 基本CUDAテストプログラム
 
 ### .NET MAUIアプリケーション
 - `MandelbrotMAUI/`: メインアプリケーション
@@ -106,22 +42,46 @@ nvcc -o mandelbrot_cuda mandelbrot_cuda.cu
 - `CudaMandelbrotService.cs`: CUDA統合サービス層
 
 ### テストプログラム
+- `test_cuda_wrapper.cpp`: CUDAラッパーDLLテスト
 - `test_rgb_values.cpp`: 色彩出力検証
 - `test_cuda_wrapper_bmp.cpp`: BMPファイル生成テスト
-- `test_debug_params.cpp`: デバッグパラメータ検証
 
 ## 🏗️ ビルド方法
 
-### CUDAエンジン
-```bash
-# CUDAラッパーDLLをビルド
-build_cuda_wrapper_vs2022.bat
+### 自動環境検出ビルド（推奨）
 
-# スタンドアロンCUDAプログラム
-build_clean.bat
+```bash
+# 全プログラムを自動ビルド（環境自動検出）
+build_all.bat
+
+# デバッグビルド
+build_debug.bat --debug
+
+# リリースビルド  
+build_debug.bat --release
+
+# 詳細出力付きビルド
+build_debug.bat --debug --verbose
+```
+
+**ビルドシステムの特徴:**
+- Visual Studio 2019/2022の自動検出
+- CUDA Toolkit の自動検出
+- x64アーキテクチャ対応
+- デバッグシンボル生成
+- エラーハンドリング完備
+
+### 手動ビルド
+
+```bash
+# 個別ビルド（Visual Studio環境設定後）
+nvcc -o hello_cuda_new.exe hello_cuda_new.cu
+nvcc -o mandelbrot_cuda_clean_fixed.exe mandelbrot_cuda_clean_fixed.cu
+cl /EHsc test_cuda_wrapper.cpp /Fe:test_cuda_wrapper_x64.exe
 ```
 
 ### MAUIアプリケーション
+
 ```bash
 cd MandelbrotMAUI
 dotnet build
@@ -131,15 +91,29 @@ dotnet run --framework net10.0-windows10.0.19041.0
 ## 🎯 実行方法
 
 ### スタンドアロン実行
-```bash
-# 基本テスト
-.\hello_cuda.exe
 
-# 高解像度Mandelbrot生成
-.\mandelbrot_cuda_clean.exe
+```bash
+# 基本CUDAテスト
+.\hello_cuda_new.exe
+
+# 高解像度Mandelbrot生成（BMPとPPM形式）
+.\mandelbrot_cuda_clean_fixed.exe
+
+# CUDAラッパーテスト
+.\test_cuda_wrapper_x64.exe
+```
+
+### デバッグ実行
+
+```bash
+# デバッグビルド実行
+.\hello_cuda_new_DEBUG.exe
+.\mandelbrot_cuda_clean_fixed_DEBUG.exe
+.\test_cuda_wrapper_DEBUG.exe
 ```
 
 ### インタラクティブアプリ
+
 ```bash
 cd MandelbrotMAUI
 dotnet run --framework net10.0-windows10.0.19041.0
@@ -148,55 +122,70 @@ dotnet run --framework net10.0-windows10.0.19041.0
 ## 📊 パフォーマンス
 
 **RTX 4060 Ti での実測値:**
-- 処理速度: 1294.56 Mpixels/sec
-- レンダリング時間: < 1ms (1024x1024)
-- 色彩分布: Black: 25,395, Blue: 1,252, Cyan: 3,823, Green: 7,882, Yellow: 88,314, Red: 71,391
+- **Mandelbrot計算**: 11.04 Mpixels/sec
+- **メモリスループット**: 31.58 MB/s
+- **実行時間**: 95ms (1024x1024ピクセル)
+- **GPU使用率**: 高効率並列処理
 
-## 🎨 出力
+## 🖼️ 出力ファイル
 
-- `mandelbrot.bmp`: 高解像度Mandelbrot可視化（Windows標準対応）
-- リアルタイム MAUI UI: インタラクティブ探索
+- `mandelbrot.bmp`: Mandelbrot集合の可視化画像（Windows標準対応）
+- `mandelbrot.ppm`: Mandelbrot集合の可視化画像（Portable Pixmap形式）
 - コンソール出力: GPU情報、実行時間、パフォーマンス統計
 
-## 🔧 技術的詳細
+## 🐛 デバッグ
 
-### CUDA仕様
-- 画像サイズ: 1024x1024ピクセル
-- 適応的反復回数: 1000-10000回（ズームレベル依存）
-- ブロックサイズ: 16x16スレッド
-- メモリ使用量: 約12MB（GPU側）
+### デバッグビルドの使用
 
-### 色彩アルゴリズム
-- HSV色空間マッピング
-- 対数スケーリング
-- RGB→RGBA変換（UI統合用）
+```bash
+# デバッグシンボル付きビルド
+build_debug.bat --debug --verbose
 
-### 座標システム修正
-- 正確なスクリーン→複素座標変換
-- アスペクト比考慮
-- ズーム中心位置維持
-- パン操作の座標ドリフト解決
+# Visual Studio でデバッグ
+# 1. Visual Studio でプロジェクトを開く
+# 2. デバッグ実行ファイルを設定
+# 3. ブレークポイントを設定して実行
+```
 
-## 🐛 解決済み問題
+### サポートするデバッグツール
 
-- ✅ 色表示問題（赤単色→多彩な色彩）
-- ✅ GraphicsView不安定性→Image制御移行
-- ✅ 座標計算精度→数学的変換修正
-- ✅ パン後ズーム座標ずれ→ZoomAtPosition実装
-- ✅ マウス操作直感性→標準的な操作系統一
+- **Visual Studio Debugger**: C++コードのデバッグ
+- **NVIDIA Nsight Compute**: CUDAカーネルプロファイリング
+- **CUDA-GDB**: コマンドラインCUDAデバッグ
 
-## 📋 使用方法
+## 🔧 トラブルシューティング
 
-1. **基本探索**: アプリ起動後、左クリックで興味のある領域をズーム
-2. **詳細観察**: 境界付近でのダブルクリックで微細構造を観察
-3. **ナビゲーション**: ドラッグでパン、右クリックでズームアウト
-4. **高速移動**: 画面上部の興味深い位置リストから直接ジャンプ
+### よくある問題
 
-## 🔬 検証済みテスト
+1. **CUDA Toolkit が見つからない**
+   ```
+   解決策: CUDA Toolkit 12.x以降をインストール
+   https://developer.nvidia.com/cuda-downloads
+   ```
 
-- CUDA計算精度確認済み
-- 色彩アルゴリズム多様性確認済み
-- Image制御安定性確認済み
-- 座標計算数学的正確性確認済み
-- マウス操作直感性確認済み
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
+2. **Visual Studio が見つからない**
+   ```
+   解決策: Visual Studio 2019/2022 with C++ tools をインストール
+   ```
+
+3. **アーキテクチャエラー**
+   ```
+   解決策: x64環境でビルド（build_all.batが自動設定）
+   ```
+
+## 🚀 技術的詳細
+
+- **画像サイズ**: 1024x1024ピクセル
+- **最大反復回数**: 1000回
+- **ブロックサイズ**: 16x16スレッド
+- **グリッドサイズ**: 64x64ブロック
+- **メモリ使用量**: 約3MB（GPU側）
+- **色空間**: RGB 24-bit
+
+## 📄 ライセンス
+
+このプロジェクトはオープンソースです。詳細はLICENSEファイルを参照してください。
+
+## 🤝 貢献
+
+プルリクエストや課題報告を歓迎します。貢献ガイドラインについては、CONTRIBUTINGファイルを参照してください。

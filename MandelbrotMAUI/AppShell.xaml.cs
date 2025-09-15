@@ -1,4 +1,4 @@
-ï»¿namespace MandelbrotMAUI;
+namespace MandelbrotMAUI;
 
 public partial class AppShell : Shell
 {
@@ -6,10 +6,10 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 		
-		// MainPageã®ãƒ«ãƒ¼ãƒˆã‚’ç™»éŒ²
+		// MainPage‚Ìƒ‹[ƒg‚ğ“o˜^
 		Routing.RegisterRoute("MainPage", typeof(MainPage));
 		
-		// åˆæœŸãƒšãƒ¼ã‚¸ã«ç›´æ¥ãƒŠãƒ“ã‚²ãƒ¼ãƒˆ
+		// ‰Šúƒy[ƒW‚É’¼ÚƒiƒrƒQ[ƒg
 		CurrentItem = this.Items.First();
 	}
 }

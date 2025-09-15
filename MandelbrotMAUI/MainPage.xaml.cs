@@ -20,7 +20,7 @@ public partial class MainPage : ContentPage
         }
         catch
         {
-            // ログファイル書き込みに失敗してもアプリをクラッシュさせない
+            // ログファイル書き込みに失敗してもアプリをクラチE��ュさせなぁE
         }
     }
 
@@ -41,14 +41,14 @@ public partial class MainPage : ContentPage
             LogToFile("Services assigned");
             Console.WriteLine("Services assigned");
             
-            // パラメータの初期化
+            // パラメータの初期匁E
             _parameters = new MandelbrotParameters();
             BindingContext = _parameters;
             LogToFile("Parameters and BindingContext set");
             Console.WriteLine("Parameters and BindingContext set");
             
             LogToFile("Creating MandelbrotCanvas...");
-            // キャンバスの作成と設定
+            // キャンバスの作�Eと設宁E
             _canvas = new MandelbrotCanvas(_tileManager);
             LogToFile("Canvas created");
             Console.WriteLine("Canvas created");
@@ -59,13 +59,13 @@ public partial class MainPage : ContentPage
             Console.WriteLine("Canvas assigned to container");
             
             LogToFile("Setting engine info...");
-            // エンジン情報の表示
+            // エンジン惁E��の表示
             EngineLabel.Text = _mandelbrotService.GetEngineInfo();
             LogToFile($"Engine info set: {_mandelbrotService.GetEngineInfo()}");
             Console.WriteLine($"Engine info set: {_mandelbrotService.GetEngineInfo()}");
             
             LogToFile("Setting up parameter change monitoring...");
-            // パラメータ変更の監視
+            // パラメータ変更の監要E
             _parameters.PropertyChanged += OnParametersChanged;
             LogToFile("=== MainPage Constructor Completed Successfully ===");
             Console.WriteLine("=== MainPage Constructor Completed Successfully ===");

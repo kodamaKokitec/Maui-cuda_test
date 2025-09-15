@@ -1,12 +1,9 @@
 EXPORTS
-<<<<<<< HEAD
 InitializeCuda
 CalculateMandelbrotCuda
 IsCudaAvailable
 GetGpuInfo
 CleanupCuda
-=======
 GenerateMandelbrot
 GetCudaDeviceInfo
 TestCudaOperation
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

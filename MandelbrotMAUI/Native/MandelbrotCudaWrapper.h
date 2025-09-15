@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #pragma once
 
 #ifdef __cplusplus
@@ -43,7 +42,6 @@ DLL_EXPORT void CleanupCuda();
 #ifdef __cplusplus
 }
 #endif
-=======
 #ifndef MANDELBROT_CUDA_WRAPPER_H
 #define MANDELBROT_CUDA_WRAPPER_H
 
@@ -81,4 +79,3 @@ extern "C" {
 }
 
 #endif // MANDELBROT_CUDA_WRAPPER_H
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

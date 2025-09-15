@@ -48,7 +48,6 @@ echo CUDA Include Path: %CUDA_INC_PATH%
 echo CUDA Library Path: %CUDA_LIB_PATH%
 
 REM Change to Native directory
-<<<<<<< HEAD
 cd /d "%~dp0MandelbrotMAUI\Native"
 
 echo Building CUDA wrapper DLL...
@@ -63,7 +62,6 @@ nvcc -c -o MandelbrotCudaWrapper.obj MandelbrotCudaWrapper.cu ^
 
 if %ERRORLEVEL% neq 0 (
     echo Error: CUDA compilation failed
-=======
 cd MandelbrotMAUI\Native
 
 echo Compiling CUDA wrapper DLL...
@@ -72,12 +70,10 @@ nvcc --shared -Xcompiler "/LD" -o MandelbrotCudaWrapper.dll MandelbrotCudaWrappe
 if %ERRORLEVEL% neq 0 (
     echo Error during CUDA compilation
     cd ..\..
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
     pause
     exit /b 1
 )
 
-<<<<<<< HEAD
 echo CUDA compilation successful!
 
 REM Link to create DLL
@@ -117,7 +113,6 @@ del *.obj *.exp *.lib 2>nul
 
 echo Build process finished.
 pause
-=======
 echo Copying DLL to root directory...
 copy MandelbrotCudaWrapper.dll ..\..\
 if %ERRORLEVEL% neq 0 (
@@ -134,4 +129,3 @@ echo.
 
 echo Press any key to continue...
 pause >nul
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

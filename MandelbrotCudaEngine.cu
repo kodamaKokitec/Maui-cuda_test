@@ -20,7 +20,7 @@ __device__ int mandelbrot_double(double x, double y, int max_iter) {
     return iter;
 }
 
-// タイル演算用CUDAカーネル（ダブル精度）
+// タイル演算用CUDAカーネル�E�ダブル精度�E�E
 __global__ void mandelbrot_tile_kernel_double(
     unsigned char* image, 
     int width, int height,
@@ -31,7 +31,7 @@ __global__ void mandelbrot_tile_kernel_double(
     int idy = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (idx < width && idy < height) {
-        // 高精度座標計算
+        // 高精度座標計箁E
         double pixel_size = 1.0 / zoom;
         double x = center_x + (idx - width / 2.0) * pixel_size;
         double y = center_y + (height / 2.0 - idy) * pixel_size;
@@ -41,13 +41,13 @@ __global__ void mandelbrot_tile_kernel_double(
         // カラーマッピング
         int pixel_idx = (idy * width + idx) * 4; // RGBA
         if (iter == max_iter) {
-            // 集合内部
+            // 雁E��冁E��
             image[pixel_idx] = 0;     // R
             image[pixel_idx + 1] = 0; // G
             image[pixel_idx + 2] = 0; // B
             image[pixel_idx + 3] = 255; // A
         } else {
-            // 集合外部 - HSVベースのカラーリング
+            // 雁E��外部 - HSVベ�Eスのカラーリング
             float hue = (float)iter / max_iter * 360.0f;
             float sat = 1.0f;
             float val = iter < max_iter ? 1.0f : 0.0f;
@@ -73,7 +73,7 @@ __global__ void mandelbrot_tile_kernel_double(
     }
 }
 
-// C++/CLI実装
+// C++/CLI実裁E
 array<Byte>^ MandelbrotCudaEngine::ComputeTileDouble(
     double centerX, double centerY, 
     double zoom, int width, int height, 
@@ -83,21 +83,21 @@ array<Byte>^ MandelbrotCudaEngine::ComputeTileDouble(
         InitializeCuda();
     }
     
-    // GPU メモリ確保
+    // GPU メモリ確俁E
     size_t image_size = width * height * 4; // RGBA
     unsigned char* d_image;
     cudaMalloc((void**)&d_image, image_size);
     
-    // カーネル実行設定
+    // カーネル実行設宁E
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, 
                   (height + blockSize.y - 1) / blockSize.y);
     
-    // CUDA カーネル実行
+    // CUDA カーネル実衁E
     mandelbrot_tile_kernel_double<<<gridSize, blockSize>>>(
         d_image, width, height, centerX, centerY, zoom, maxIterations);
     
-    // 結果をホストにコピー
+    // 結果を�Eストにコピ�E
     array<Byte>^ result = gcnew array<Byte>(image_size);
     pin_ptr<Byte> pinnedResult = &result[0];
     cudaMemcpy(pinnedResult, d_image, image_size, cudaMemcpyDeviceToHost);
@@ -108,7 +108,7 @@ array<Byte>^ MandelbrotCudaEngine::ComputeTileDouble(
 }
 
 void MandelbrotCudaEngine::InitializeCuda() {
-    // CUDA デバイス初期化
+    // CUDA チE��イス初期匁E
     cudaSetDevice(0);
     isInitialized = true;
 }

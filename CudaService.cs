@@ -21,7 +21,7 @@ namespace MandelbrotMAUI.Services
         {
             try
             {
-                // CUDA 利用可能性チェック
+                // CUDA 利用可能性チェチE��
                 var info = GetGpuInfo();
                 IsAvailable = !string.IsNullOrEmpty(info);
             }
@@ -67,7 +67,7 @@ namespace MandelbrotMAUI.Services
         }
     }
 
-    // フォールバック用CPU実装
+    // フォールバック用CPU実裁E
     public class CpuMandelbrotService : ICudaService
     {
         public bool IsAvailable => true;
@@ -98,7 +98,7 @@ namespace MandelbrotMAUI.Services
 
                     if (iter == maxIterations)
                     {
-                        // 黒
+                        // 黁E
                         imageData[pixelIndex] = 0;     // R
                         imageData[pixelIndex + 1] = 0; // G
                         imageData[pixelIndex + 2] = 0; // B

@@ -10,7 +10,7 @@
 #define HEIGHT 1024
 #define MAX_ITER 1000
 
-// Mandelbrot集合の計算を行うCUDAカーネル
+// Mandelbrot雁E��の計算を行うCUDAカーネル
 __device__ int mandelbrot(float x, float y) {
     float real = x;
     float imag = y;
@@ -33,31 +33,31 @@ __global__ void mandelbrot_kernel(unsigned char* image, int width, int height,
     int idy = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (idx < width && idy < height) {
-        // ピクセル座標を複素平面座標に変換
+        // ピクセル座標を褁E��平面座標に変換
         float x = x_min + (x_max - x_min) * idx / (float)width;
         float y = y_min + (y_max - y_min) * idy / (float)height;
         
-        // Mandelbrot集合の計算
+        // Mandelbrot雁E��の計箁E
         int iter = mandelbrot(x, y);
         
-        // 色の計算（グレースケール）
+        // 色の計算（グレースケール�E�E
         unsigned char color;
         if (iter == MAX_ITER) {
-            color = 0; // 黒（集合内部）
+            color = 0; // 黒（集合�E部�E�E
         } else {
             // カラフルな着色
             color = (unsigned char)((iter * 255) / MAX_ITER);
         }
         
-        // RGB値を設定（同じ値でグレースケール、またはカラー）
+        // RGB値を設定（同じ値でグレースケール、また�Eカラー�E�E
         int pixel_idx = (idy * width + idx) * 3;
         if (iter == MAX_ITER) {
-            // 集合内部は黒
+            // 雁E��冁E��は黁E
             image[pixel_idx] = 0;     // R
             image[pixel_idx + 1] = 0; // G
             image[pixel_idx + 2] = 0; // B
         } else {
-            // 集合外部はカラフルに
+            // 雁E��外部はカラフルに
             float ratio = (float)iter / MAX_ITER;
             image[pixel_idx] = (unsigned char)(255 * (1.0f - ratio));     // R
             image[pixel_idx + 1] = (unsigned char)(255 * ratio * 0.5f);   // G
@@ -66,7 +66,7 @@ __global__ void mandelbrot_kernel(unsigned char* image, int width, int height,
     }
 }
 
-// GPU情報を表示する関数
+// GPU惁E��を表示する関数
 void printGPUInfo() {
     int deviceCount;
     cudaGetDeviceCount(&deviceCount);
@@ -128,14 +128,14 @@ int main() {
     printf("CUDA Mandelbrot Set Visualization\n");
     printf("==================================\n");
     
-    // GPU情報を表示
+    // GPU惁E��を表示
     printGPUInfo();
     
     // 初期メモリ使用量を表示
     printf("Initial ");
     printMemoryUsage();
     
-    // ホスト側メモリの確保
+    // ホスト�Eメモリの確俁E
     size_t image_size = WIDTH * HEIGHT * 3; // RGB
     unsigned char* h_image = (unsigned char*)malloc(image_size);
     if (!h_image) {
@@ -143,7 +143,7 @@ int main() {
         return -1;
     }
     
-    // デバイス側メモリの確保
+    // チE��イス側メモリの確俁E
     unsigned char* d_image;
     cudaError_t err = cudaMalloc((void**)&d_image, image_size);
     if (err != cudaSuccess) {
@@ -156,11 +156,11 @@ int main() {
     printf("After allocation ");
     printMemoryUsage();
     
-    // Mandelbrot集合の表示範囲を設定
+    // Mandelbrot雁E��の表示篁E��を設宁E
     float x_min = -2.5f, x_max = 1.0f;
     float y_min = -1.25f, y_max = 1.25f;
     
-    // CUDAカーネルの実行設定
+    // CUDAカーネルの実行設宁E
     dim3 blockSize(16, 16);
     dim3 gridSize((WIDTH + blockSize.x - 1) / blockSize.x, 
                   (HEIGHT + blockSize.y - 1) / blockSize.y);
@@ -170,7 +170,7 @@ int main() {
     printf("Total threads: %d\n", gridSize.x * gridSize.y * blockSize.x * blockSize.y);
     printf("Image resolution: %dx%d pixels\n\n", WIDTH, HEIGHT);
     
-    // 実行時間測定開始
+    // 実行時間測定開姁E
     clock_t start_time = clock();
     
     // CUDA Events for GPU timing
@@ -181,10 +181,10 @@ int main() {
     printf("Starting GPU computation...\n");
     cudaEventRecord(start_gpu);
     
-    // CUDAカーネルを実行
+    // CUDAカーネルを実衁E
     mandelbrot_kernel<<<gridSize, blockSize>>>(d_image, WIDTH, HEIGHT, x_min, x_max, y_min, y_max);
     
-    // カーネル実行の完了を待機
+    // カーネル実行�E完亁E��征E��E
     err = cudaDeviceSynchronize();
     if (err != cudaSuccess) {
         printf("Error: Kernel execution failed: %s\n", cudaGetErrorString(err));
@@ -196,14 +196,14 @@ int main() {
     cudaEventRecord(stop_gpu);
     cudaEventSynchronize(stop_gpu);
     
-    // GPU実行時間を計算
+    // GPU実行時間を計箁E
     float gpu_time;
     cudaEventElapsedTime(&gpu_time, start_gpu, stop_gpu);
     
     printf("GPU computation completed!\n");
     printf("GPU execution time: %.2f ms\n", gpu_time);
     
-    // デバイスからホストへデータをコピー
+    // チE��イスからホストへチE�Eタをコピ�E
     printf("Copying data from GPU to CPU...\n");
     err = cudaMemcpy(h_image, d_image, image_size, cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -213,11 +213,11 @@ int main() {
         return -1;
     }
     
-    // 全体の実行時間を計算
+    // 全体�E実行時間を計箁E
     clock_t end_time = clock();
     double total_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0;
     
-    // 画像を保存
+    // 画像を保孁E
     printf("Saving image...\n");
     savePPM("mandelbrot.ppm", h_image, WIDTH, HEIGHT);
     

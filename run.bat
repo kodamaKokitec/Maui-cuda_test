@@ -12,7 +12,7 @@ if not exist mandelbrot_cuda.exe (
 echo Running CUDA Mandelbrot visualization...
 echo.
 
-REM プログラムを実行
+REM プログラムを実衁E
 mandelbrot_cuda.exe
 
 if %ERRORLEVEL% equ 0 (

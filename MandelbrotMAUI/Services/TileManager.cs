@@ -24,7 +24,7 @@ public class TileManager
         var zoomLevel = GetZoomLevel(zoom);
         var tileKey = new TileKey(tileX, tileY, zoomLevel);
 
-        // キャッシュチェック
+        // キャチE��ュチェチE��
         if (_tileCache.TryGetValue(tileKey, out var cachedTile))
         {
             cachedTile.LastAccessed = DateTime.Now;
@@ -32,12 +32,12 @@ public class TileManager
             if (cachedTile.ImageData != null)
                 return cachedTile.ImageData;
             
-            // 計算中の場合は完了を待つ
+            // 計算中の場合�E完亁E��征E��
             if (cachedTile.ComputationTask != null)
                 return await cachedTile.ComputationTask.Task;
         }
 
-        // 新しい計算タスクを開始
+        // 新しい計算タスクを開姁E
         var tcs = new TaskCompletionSource<byte[]>();
         var newTile = new TileData 
         { 
@@ -48,7 +48,7 @@ public class TileManager
 
         if (!_tileCache.TryAdd(tileKey, newTile))
         {
-            // 他のスレッドが既に開始している
+            // 他�EスレチE��が既に開始してぁE��
             if (_tileCache.TryGetValue(tileKey, out var existingTile) && 
                 existingTile.ComputationTask != null)
             {
@@ -58,21 +58,21 @@ public class TileManager
 
         try
         {
-            // タイル座標を複素平面座標に変換
+            // タイル座標を褁E��平面座標に変換
             double pixelSize = 1.0 / zoom;
             double tileCenterX = centerX + (tileX - 0.5) * _tileSize * pixelSize;
             double tileCenterY = centerY + (0.5 - tileY) * _tileSize * pixelSize;
 
-            // 演算実行
+            // 演算実衁E
             var imageData = await _mandelbrotService.ComputeTileAsync(
                 tileCenterX, tileCenterY, zoom, _tileSize, _tileSize, maxIterations);
 
-            // キャッシュに保存
+            // キャチE��ュに保孁E
             newTile.ImageData = imageData;
             newTile.IsComputing = false;
             tcs.SetResult(imageData);
 
-            // キャッシュサイズ管理
+            // キャチE��ュサイズ管琁E
             _ = Task.Run(ManageCacheSize);
 
             return imageData;
@@ -87,7 +87,7 @@ public class TileManager
 
     private int GetZoomLevel(double zoom)
     {
-        // ズームレベルを段階的に分類 (2の累乗ベース)
+        // ズームレベルを段階的に刁E��E(2の累乗�Eース)
         return (int)Math.Floor(Math.Log2(Math.Max(1, zoom)));
     }
 

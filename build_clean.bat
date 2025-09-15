@@ -28,19 +28,6 @@ nvcc -o mandelbrot_cuda_clean mandelbrot_cuda_clean.cu
 if %ERRORLEVEL% equ 0 (
     echo.
     echo ===== BUILD SUCCESSFUL =====
-<<<<<<< HEAD
-    echo Executable: mandelbrot_cuda_clean.exe
-    echo.
-    echo Ready to run!
-) else (
-    echo.
-    echo ===== BUILD FAILED =====
-    echo Error code: %ERRORLEVEL%
-    echo Please check the error messages above
-)
-
-pause
-=======
     echo Output: mandelbrot_cuda_clean.exe
     echo.
     echo To run: .\mandelbrot_cuda_clean.exe
@@ -55,4 +42,3 @@ pause
 
 echo Press any key to continue...
 pause >nul
->>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

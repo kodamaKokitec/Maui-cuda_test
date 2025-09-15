@@ -24,7 +24,7 @@ namespace MandelbrotMAUI.Views
             canvas.FillColor = Colors.Black;
             canvas.FillRectangle(dirtyRect);
 
-            // 表示範囲のタイルを計算
+            // 表示篁E��のタイルを計箁E
             var visibleTiles = CalculateVisibleTiles(dirtyRect);
 
             foreach (var tileInfo in visibleTiles)
@@ -42,7 +42,7 @@ namespace MandelbrotMAUI.Views
                 ZoomLevel = GetZoomLevel(_viewport.Parameters.Zoom) 
             };
 
-            // キャッシュされた画像をチェック
+            // キャチE��ュされた画像をチェチE��
             if (_renderedTiles.TryGetValue(tileKey, out var image))
             {
                 canvas.DrawImage(image, 
@@ -51,7 +51,7 @@ namespace MandelbrotMAUI.Views
                 return;
             }
 
-            // タイルデータを非同期取得
+            // タイルチE�Eタを非同期取征E
             _ = Task.Run(async () =>
             {
                 try
@@ -63,13 +63,13 @@ namespace MandelbrotMAUI.Views
                         tileInfo.X, tileInfo.Y,
                         _viewport.Parameters.MaxIterations);
 
-                    // バイト配列をIImageに変換
+                    // バイト�E列をIImageに変換
                     var stream = new MemoryStream(ConvertToRgbaStream(imageData));
                     var newImage = PlatformImage.FromStream(stream);
                     
                     _renderedTiles[tileKey] = newImage;
                     
-                    // UIスレッドで再描画
+                    // UIスレチE��で再描画
                     MainThread.BeginInvokeOnMainThread(() => Invalidate());
                 }
                 catch (Exception ex)
@@ -97,7 +97,7 @@ namespace MandelbrotMAUI.Views
             
             _viewport.Parameters.Zoom *= zoomFactor;
             
-            // ズーム中心を維持
+            // ズーム中忁E��維持E
             _viewport.Parameters.CenterX = complexX;
             _viewport.Parameters.CenterY = complexY;
             
@@ -142,7 +142,7 @@ namespace MandelbrotMAUI.Views
 
         private void ClearOldTiles()
         {
-            // 古いズームレベルのタイルをクリア
+            // 古ぁE��ームレベルのタイルをクリア
             var currentZoomLevel = GetZoomLevel(_viewport.Parameters.Zoom);
             var keysToRemove = _renderedTiles.Keys
                 .Where(k => Math.Abs(k.ZoomLevel - currentZoomLevel) > 2)
