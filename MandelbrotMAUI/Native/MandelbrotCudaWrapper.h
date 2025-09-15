@@ -15,6 +15,16 @@ extern "C" {
     #define DLL_EXPORT
 #endif
 
+// Error codes
+#define CUDA_SUCCESS 0
+#define CUDA_ERROR_INVALID_PARAMETER -1
+#define CUDA_ERROR_MEMORY_ALLOCATION -2
+#define CUDA_ERROR_KERNEL_LAUNCH -3
+#define CUDA_ERROR_MEMORY_COPY -4
+#define CUDA_ERROR_KERNEL_EXECUTION -5
+#define CUDA_ERROR_DEVICE_SYNC -6
+#define CUDA_ERROR_NO_DEVICE -7
+
 // Initialize CUDA runtime
 DLL_EXPORT int InitializeCuda();
 
@@ -50,16 +60,6 @@ DLL_EXPORT void CleanupCuda();
 #else
 #define CUDA_WRAPPER_API __declspec(dllimport)
 #endif
-
-// Error codes
-#define CUDA_SUCCESS 0
-#define CUDA_ERROR_INVALID_PARAMETER -1
-#define CUDA_ERROR_MEMORY_ALLOCATION -2
-#define CUDA_ERROR_KERNEL_EXECUTION -3
-#define CUDA_ERROR_DEVICE_SYNC -4
-#define CUDA_ERROR_MEMORY_COPY -5
-#define CUDA_ERROR_NO_DEVICE -6
-#define CUDA_ERROR_DEVICE_QUERY -7
 
 extern "C" {
     // Generate Mandelbrot set image
