@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using MandelbrotMAUI.Models;
 using MandelbrotMAUI.Services;
 
 namespace MandelbrotMAUI;
@@ -22,6 +23,10 @@ public static class MauiProgram
 #if DEBUG
 		builder.Services.AddLogging();
 		builder.Logging.AddDebug();
+		
+		// Enable CUDA debug console for Visual Studio debugging
+		CudaDebugHelper.EnableConsoleOutput();
+		CudaDebugHelper.Log("MAUI Application starting with CUDA debugging enabled");
 #endif
 
 		return builder.Build();

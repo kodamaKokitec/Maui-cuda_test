@@ -5,26 +5,9 @@ namespace MandelbrotMAUI.Services;
 
 public class CudaMandelbrotService : IMandelbrotService
 {
-    // P/Invoke declarations for CUDA wrapper
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "InitializeCuda")]
-    private static extern int InitializeCuda();
+    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int TestCudaOperation();
 
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "CalculateMandelbrotCuda")]
-    private static extern int CalculateMandelbrotCuda(
-        byte[] outputBuffer, int width, int height,
-        double centerX, double centerY, double zoom, int maxIterations);
-
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "IsCudaAvailable")]
-    private static extern int IsCudaAvailable();
-
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetGpuInfo")]
-    private static extern void GetGpuInfo(byte[] infoBuffer, int bufferSize);
-
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "CleanupCuda")]
-    private static extern void CleanupCuda();
-
-    private readonly CpuMandelbrotService _cpuFallback;
-    private bool _cudaInitialized = false;
     [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
     private static extern int GenerateMandelbrot(
         byte[] imageData, int width, int height,
@@ -33,9 +16,6 @@ public class CudaMandelbrotService : IMandelbrotService
     [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
     private static extern int GetCudaDeviceInfo(
         byte[] deviceName, int nameSize, out int computeMajor, out int computeMinor);
-
-    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
-    private static extern int TestCudaOperation();
 
     private readonly CpuMandelbrotService _cpuFallback;
     private bool _cudaAvailable = false;
@@ -53,46 +33,35 @@ public class CudaMandelbrotService : IMandelbrotService
 
     private void InitializeCudaIfAvailable()
     {
+        CudaDebugHelper.Log("Initializing CUDA...");
         try
         {
-            if (IsCudaAvailable() > 0)
-            {
-                if (InitializeCuda() == 0)
-                {
-                    _cudaAvailable = true;
-                    _cudaInitialized = true;
-
-                    // Get GPU info
-                    var infoBuffer = new byte[256];
-                    GetGpuInfo(infoBuffer, infoBuffer.Length);
-                    _gpuInfo = System.Text.Encoding.UTF8.GetString(infoBuffer).TrimEnd('\0');
             if (TestCudaOperation() == 0)
             {
                 _cudaAvailable = true;
-
-                // Get GPU info
                 var deviceNameBuffer = new byte[256];
                 int computeMajor, computeMinor;
                 if (GetCudaDeviceInfo(deviceNameBuffer, deviceNameBuffer.Length, out computeMajor, out computeMinor) == 0)
                 {
                     var deviceName = System.Text.Encoding.UTF8.GetString(deviceNameBuffer).TrimEnd('\0');
                     _gpuInfo = $"{deviceName} (Compute {computeMajor}.{computeMinor})";
+                    CudaDebugHelper.Log($"CUDA initialized successfully: {_gpuInfo}");
                 }
             }
+            else
+            {
+                CudaDebugHelper.Log("CUDA test operation failed");
+            }
         }
-        catch (DllNotFoundException)
+        catch (DllNotFoundException ex)
         {
-            // CUDA wrapper DLL not found - use CPU fallback
             _cudaAvailable = false;
-        }
-        catch (Exception)
-        {
-            // Other initialization errors - use CPU fallback
-            _cudaAvailable = false;
+            CudaDebugHelper.Log($"CUDA DLL not found: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"CUDA initialization failed: {ex.Message}");
+            CudaDebugHelper.Log($"CUDA initialization failed: {ex.Message}");
             _cudaAvailable = false;
         }
     }
@@ -115,148 +84,35 @@ public class CudaMandelbrotService : IMandelbrotService
     {
         return await Task.Run(() =>
         {
-            var rgbData = new byte[width * height * 3]; // RGB
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            CudaDebugHelper.Log($"Starting CUDA computation {width}x{height}, center=({centerX:F6}, {centerY:F6}), zoom={zoom:F2}");
             
-            System.Diagnostics.Debug.WriteLine($"CUDA: Computing tile {width}x{height}, center=({centerX:F6}, {centerY:F6}), zoom={zoom:F2}");
-            
-            int result = CalculateMandelbrotCuda(rgbData, width, height, centerX, centerY, zoom, maxIterations);
-            
-            System.Diagnostics.Debug.WriteLine($"CUDA: Computation result = {result}");
-            
-            if (result != 0)
-            {
-                System.Diagnostics.Debug.WriteLine($"CUDA: Failed with result {result}, falling back to CPU");
-                // CUDA calculation failed, fallback to CPU
-                return _cpuFallback.ComputeTileAsync(centerX, centerY, zoom, width, height, maxIterations).Result;
-            }
-
-            // RGB 繝・・繧ｿ縺ｮ繧ｵ繝ｳ繝励Μ繝ｳ繧ｰ繧堤｢ｺ隱・
-            if (rgbData.Length >= 12)
-            {
-                System.Diagnostics.Debug.WriteLine($"CUDA RGB samples: [{rgbData[0]},{rgbData[1]},{rgbData[2]}] [{rgbData[3]},{rgbData[4]},{rgbData[5]}] [{rgbData[6]},{rgbData[7]},{rgbData[8]}] [{rgbData[9]},{rgbData[10]},{rgbData[11]}]");
-            }
-
-            // Convert RGB to RGBA
-            var rgbaData = new byte[width * height * 4];
-            for (int i = 0; i < width * height; i++)
-            {
-                rgbaData[i * 4] = rgbData[i * 3];     // R
-                rgbaData[i * 4 + 1] = rgbData[i * 3 + 1]; // G
-                rgbaData[i * 4 + 2] = rgbData[i * 3 + 2]; // B
-                rgbaData[i * 4 + 3] = 255;            // A
-            }
-
-            // RGBA 繝・・繧ｿ縺ｮ繧ｵ繝ｳ繝励Μ繝ｳ繧ｰ繧堤｢ｺ隱・
-            if (rgbaData.Length >= 16)
-            {
-                System.Diagnostics.Debug.WriteLine($"CUDA RGBA samples: [{rgbaData[0]},{rgbaData[1]},{rgbaData[2]},{rgbaData[3]}] [{rgbaData[4]},{rgbaData[5]},{rgbaData[6]},{rgbaData[7]}] [{rgbaData[8]},{rgbaData[9]},{rgbaData[10]},{rgbaData[11]}] [{rgbaData[12]},{rgbaData[13]},{rgbaData[14]},{rgbaData[15]}]");
-            }
-
-            // 繝・ヰ繝・げ逕ｨ・壽怙蛻昴・繧ｿ繧､繝ｫ險育ｮ玲凾縺ｫBMP繝輔ぃ繧､繝ｫ繧剃ｿ晏ｭ・
-            SaveDebugBmp(rgbData, width, height, centerX, centerY, zoom);
-
             var rgbData = new byte[width * height * 3];
-            
             int result = GenerateMandelbrot(rgbData, width, height, centerX, centerY, zoom, maxIterations);
             
+            stopwatch.Stop();
+            CudaDebugHelper.LogPerformance("Mandelbrot Generation", stopwatch.Elapsed, width * height);
+            
             if (result != 0)
             {
-                throw new InvalidOperationException($"CUDA computation failed with error code: {result}");
+                System.Diagnostics.Debug.WriteLine($"CUDA computation failed with error code: {result}");
+                return _cpuFallback.ComputeTileAsync(centerX, centerY, zoom, width, height, maxIterations).Result;
             }
             
-            // Convert RGB to RGBA for UI compatibility
             var rgbaData = new byte[width * height * 4];
             for (int i = 0; i < width * height; i++)
             {
                 int rgbIndex = i * 3;
                 int rgbaIndex = i * 4;
-                rgbaData[rgbaIndex] = rgbData[rgbIndex];         // R
-                rgbaData[rgbaIndex + 1] = rgbData[rgbIndex + 1]; // G
-                rgbaData[rgbaIndex + 2] = rgbData[rgbIndex + 2]; // B
-                rgbaData[rgbaIndex + 3] = 255;                   // A (fully opaque)
+                rgbaData[rgbaIndex] = rgbData[rgbIndex];
+                rgbaData[rgbaIndex + 1] = rgbData[rgbIndex + 1];
+                rgbaData[rgbaIndex + 2] = rgbData[rgbIndex + 2];
+                rgbaData[rgbaIndex + 3] = 255;
             }
             
             return rgbaData;
         });
     }
 
-    private static int _debugSaveCount = 0;
 
-    private void SaveDebugBmp(byte[] rgbData, int width, int height, double centerX, double centerY, double zoom)
-    {
-        // 譛蛻昴・謨ｰ譫壹・繧ｿ繧､繝ｫ縺ｮ縺ｿ菫晏ｭ假ｼ医ヵ繧｡繧､繝ｫ謨ｰ蛻ｶ髯撰ｼ・
-        if (_debugSaveCount >= 3) return;
-        
-        _debugSaveCount++;
-
-        try
-        {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string fileName = Path.Combine(desktopPath, $"debug_tile_{_debugSaveCount}_{width}x{height}_{centerX:F3}_{centerY:F3}_z{zoom:F1}.bmp");
-            
-            SaveBmpFile(fileName, rgbData, width, height);
-            System.Diagnostics.Debug.WriteLine($"Debug BMP saved: {fileName}");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error saving debug BMP: {ex.Message}");
-        }
-    }
-
-    private void SaveBmpFile(string fileName, byte[] rgbData, int width, int height)
-    {
-        // BMP file format
-        int imageSize = width * height * 3;
-        int fileSize = 54 + imageSize; // BMP header is 54 bytes
-        
-        using (var fs = new FileStream(fileName, FileMode.Create))
-        using (var writer = new BinaryWriter(fs))
-        {
-            // BMP file header (14 bytes)
-            writer.Write((byte)'B');
-            writer.Write((byte)'M');
-            writer.Write(fileSize);        // File size
-            writer.Write((int)0);          // Reserved
-            writer.Write(54);              // Offset to image data
-            
-            // BMP info header (40 bytes)
-            writer.Write(40);              // Info header size
-            writer.Write(width);           // Image width
-            writer.Write(height);          // Image height
-            writer.Write((short)1);        // Planes
-            writer.Write((short)24);       // Bits per pixel
-            writer.Write(0);               // Compression
-            writer.Write(imageSize);       // Image size
-            writer.Write(0);               // X pixels per meter
-            writer.Write(0);               // Y pixels per meter
-            writer.Write(0);               // Colors used
-            writer.Write(0);               // Important colors
-            
-            // BMP data is stored bottom-to-top, so we need to flip the image
-            for (int y = height - 1; y >= 0; y--)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int srcIndex = (y * width + x) * 3;
-                    // BMP uses BGR order, while our data is RGB
-                    writer.Write(rgbData[srcIndex + 2]); // B
-                    writer.Write(rgbData[srcIndex + 1]); // G
-                    writer.Write(rgbData[srcIndex]);     // R
-                }
-            }
-        }
-    }
-
-    ~CudaMandelbrotService()
-    {
-        if (_cudaInitialized)
-        {
-            CleanupCuda();
-        }
-    }
-}
-    public void Dispose()
-    {
-        _cpuFallback?.Dispose();
-    }
 }

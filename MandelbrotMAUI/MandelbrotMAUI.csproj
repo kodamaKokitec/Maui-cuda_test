@@ -25,6 +25,24 @@
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
+	<!-- Configuration specific settings -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|x64'">
+		<Debugger>auto</Debugger>
+		<DebugType>portable</DebugType>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|x64'">
+		<Debugger>none</Debugger>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0-rc.1.25451.107" />
@@ -49,15 +67,12 @@
 		
 		<!-- Native DLL Distribution -->
 		<Content Include="Native\MandelbrotCudaWrapper.dll" Condition="Exists('Native\MandelbrotCudaWrapper.dll')">
-		<Content Include="Native\MandelbrotCudaWrapper.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-
-</Project>
-	<ItemGroup>
-	  <Content Include="Resources\Styles\Colors.xaml" />
-	  <Content Include="Resources\Styles\Styles.xaml" />
+		
+		<!-- Styles -->
+		<Content Include="Resources\Styles\Colors.xaml" />
+		<Content Include="Resources\Styles\Styles.xaml" />
 	</ItemGroup>
 
 </Project>

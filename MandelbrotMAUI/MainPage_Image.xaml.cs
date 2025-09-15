@@ -1,3 +1,4 @@
+using MandelbrotMAUI.Models;
 using MandelbrotMAUI.Services;
 using System.Diagnostics;
 
@@ -28,29 +29,29 @@ public partial class MainPage_Image : ContentPage
 
     private void SetupGestures()
     {
-        // パンジェスチャー�E�ドラチE���E�E
+        // パンジェスチャー�E�ドラチE���E�E
         var panGesture = new PanGestureRecognizer();
         panGesture.PanUpdated += OnPanUpdated;
         MandelbrotImage.GestureRecognizers.Add(panGesture);
 
-        // ピンチジェスチャー�E�ズーム�E�E
+        // ピンチジェスチャー�E�ズーム�E�E
         var pinchGesture = new PinchGestureRecognizer();
         pinchGesture.PinchUpdated += OnPinchUpdated;
         MandelbrotImage.GestureRecognizers.Add(pinchGesture);
 
-        // 左クリチE���E�シングルタチE�E�E�でズームイン
+        // 左クリチE���E�シングルタチE�E�E�でズームイン
         var leftClickGesture = new TapGestureRecognizer { NumberOfTapsRequired = 1 };
         leftClickGesture.Buttons = ButtonsMask.Primary;
         leftClickGesture.Tapped += OnLeftClicked;
         MandelbrotImage.GestureRecognizers.Add(leftClickGesture);
 
-        // 右クリチE��でズームアウチE
+        // 右クリチE��でズームアウチE
         var rightClickGesture = new TapGestureRecognizer();
         rightClickGesture.Buttons = ButtonsMask.Secondary;
         rightClickGesture.Tapped += OnRightClicked;
         MandelbrotImage.GestureRecognizers.Add(rightClickGesture);
 
-        // ダブルクリチE��で大幁E��ームイン
+        // ダブルクリチE��で大幁E��ームイン
         var doubleClickGesture = new TapGestureRecognizer { NumberOfTapsRequired = 2 };
         doubleClickGesture.Tapped += OnDoubleClicked;
         MandelbrotImage.GestureRecognizers.Add(doubleClickGesture);
@@ -85,13 +86,13 @@ public partial class MainPage_Image : ContentPage
         var position = e.GetPosition(MandelbrotImage);
         if (position.HasValue)
         {
-            ZoomAtPosition(position.Value, 4.0); // 大幁E��ームイン
+            ZoomAtPosition(position.Value, 4.0); // 大幁E��ームイン
         }
     }
 
     private void ZoomAtPosition(Point screenPosition, double zoomFactor)
     {
-        // 画面座標を褁E��平面座標に変換
+        // 画面座標を褁E��平面座標に変換
         var complexPosition = ScreenToComplex(screenPosition);
         
         // ズーム実衁E
@@ -101,7 +102,7 @@ public partial class MainPage_Image : ContentPage
         // 新しいズームレベルでの画面座標を取征E
         var newScreenPosition = ComplexToScreen(complexPosition);
         
-        // 中忁E��調整して、クリチE��位置が変わらなぁE��ぁE��する
+        // 中忁E��調整して、クリチE��位置が変わらなぁE��ぁE��する
         var screenCenter = new Point(MandelbrotImage.Width / 2, MandelbrotImage.Height / 2);
         var offset = ScreenToComplex(new Point(
             screenCenter.X + (screenPosition.X - newScreenPosition.X),
@@ -127,18 +128,18 @@ public partial class MainPage_Image : ContentPage
             imageHeight = _imageHeight;
         }
 
-        // 正規化座標！E-1�E�に変換
+        // 正規化座標！E-1�E�に変換
         var normalizedX = screenPoint.X / imageWidth;
         var normalizedY = screenPoint.Y / imageHeight;
 
-        // 褁E��平面の表示篁E��を計箁E
+        // 褁E��平面の表示篁E��を計箁E
         var aspectRatio = (double)_imageWidth / _imageHeight;
         var range = 4.0 / _zoom;
         
         var rangeX = range * aspectRatio;
         var rangeY = range;
 
-        // 褁E��平面座標に変換
+        // 褁E��平面座標に変換
         var complexX = _centerX + (normalizedX - 0.5) * rangeX;
         var complexY = _centerY - (normalizedY - 0.5) * rangeY; // Y軸反転
 
@@ -157,7 +158,7 @@ public partial class MainPage_Image : ContentPage
             imageHeight = _imageHeight;
         }
 
-        // 褁E��平面の表示篁E��を計箁E
+        // 褁E��平面の表示篁E��を計箁E
         var aspectRatio = (double)_imageWidth / _imageHeight;
         var range = 4.0 / _zoom;
         
@@ -198,7 +199,7 @@ public partial class MainPage_Image : ContentPage
                     var deltaX = e.TotalX - _lastPanPoint.Value.X;
                     var deltaY = e.TotalY - _lastPanPoint.Value.Y;
 
-                    // 褁E��平面での移動量を正確に計箁E
+                    // 褁E��平面での移動量を正確に計箁E
                     var aspectRatio = (double)_imageWidth / _imageHeight;
                     var range = 4.0 / _zoom;
                     
@@ -222,7 +223,7 @@ public partial class MainPage_Image : ContentPage
 
             case GestureStatus.Completed:
                 _lastPanPoint = null;
-                _ = GenerateImageAsync(); // パン完亁E��に再生戁E
+                _ = GenerateImageAsync(); // パン完亁E��に再生戁E
                 break;
         }
     }
@@ -239,7 +240,7 @@ public partial class MainPage_Image : ContentPage
         }
         else if (e.Status == GestureStatus.Completed)
         {
-            _ = GenerateImageAsync(); // ピンチ完亁E��に再生戁E
+            _ = GenerateImageAsync(); // ピンチ完亁E��に再生戁E
         }
     }
 
@@ -250,7 +251,7 @@ public partial class MainPage_Image : ContentPage
 
         try
         {
-            // ズームレベルに応じて反復回数を�E動調整
+            // ズームレベルに応じて反復回数を�E動調整
             var adaptiveIterations = CalculateAdaptiveIterations(_zoom);
             
             MainThread.BeginInvokeOnMainThread(() =>
@@ -269,13 +270,13 @@ public partial class MainPage_Image : ContentPage
             
             if (rgbaData != null && rgbaData.Length > 0)
             {
-                // RGBAチE�Eタの色刁E��
+                // RGBAチE�Eタの色刁E��
                 AnalyzeColors(rgbaData);
                 
-                // ImageSourceを作�EしてImageコントロールに設宁E
+                // ImageSourceを作�EしてImageコントロールに設宁E
                 var imageSource = CreateImageSourceFromRgbaData(rgbaData, _imageWidth, _imageHeight);
                 
-                // UIスレチE��で画像を設宁E
+                // UIスレチE��で画像を設宁E
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     MandelbrotImage.Source = imageSource;
@@ -307,8 +308,8 @@ public partial class MainPage_Image : ContentPage
 
     private int CalculateAdaptiveIterations(double zoom)
     {
-        // ズームレベルに応じて反復回数を動皁E��調整
-        // 高ズーム時には詳細な墁E��構造を表示するため反復回数を増加
+        // ズームレベルに応じて反復回数を動皁E��調整
+        // 高ズーム時には詳細な墁E��構造を表示するため反復回数を増加
         var baseIterations = 100;
         var logZoom = Math.Log10(Math.Max(1.0, zoom));
         var adaptiveIterations = (int)(baseIterations + logZoom * 50);
@@ -342,7 +343,7 @@ public partial class MainPage_Image : ContentPage
         var totalPixels = rgbaData.Length / 4;
         Debug.WriteLine($"Color analysis - Total: {totalPixels}, Red: {redCount}, Green: {greenCount}, Blue: {blueCount}, Black: {blackCount}, Other: {otherCount}");
         
-        // 最初�E数ピクセルの詳細
+        // 最初�E数ピクセルの詳細
         Debug.WriteLine("First 10 pixels:");
         for (int i = 0; i < Math.Min(10, rgbaData.Length / 4); i++)
         {
@@ -355,10 +356,10 @@ public partial class MainPage_Image : ContentPage
     {
         try
         {
-            // RGBAチE�EタからBMPバイト�E列を作�E
+            // RGBAチE�EタからBMPバイト�E列を作�E
             var bmpData = CreateBmpFromRgbaData(rgbaData, width, height);
             
-            // BMPチE�EタからImageSourceを作�E
+            // BMPチE�EタからImageSourceを作�E
             return ImageSource.FromStream(() => new MemoryStream(bmpData));
         }
         catch (Exception ex)
@@ -414,7 +415,7 @@ public partial class MainPage_Image : ContentPage
         }
     }
 
-    // 興味深ぁE��所への移動機�E
+    // 興味深ぁE��所への移動機�E
     public async Task JumpToInterestingLocation(int locationIndex)
     {
         if (_isGenerating) return;

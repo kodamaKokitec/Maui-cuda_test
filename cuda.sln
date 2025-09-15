@@ -2,18 +2,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MandelbrotMAUI", "MandelbrotMAUI\MandelbrotMAUI.csproj", "{2792F51B-99D9-BD26-B39B-6C0ACA65089F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MandelbrotMAUI", "MandelbrotMAUI\MandelbrotMAUI.csproj", "{2792F51B-99D9-BD26-B39B-6C0ACA65089F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B12702AD-ABFB-343A-A199-8E24837244A3} = {B12702AD-ABFB-343A-A199-8E24837244A3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MandelbrotCudaWrapper", "MandelbrotCudaWrapper.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Debug|x64.ActiveCfg = Debug|x64
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Debug|x64.Build.0 = Debug|x64
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Debug|x64.Deploy.0 = Debug|x64
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Release|x64.ActiveCfg = Release|x64
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Release|x64.Build.0 = Release|x64
+		{2792F51B-99D9-BD26-B39B-6C0ACA65089F}.Release|x64.Deploy.0 = Release|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

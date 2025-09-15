@@ -100,3 +100,10 @@ public class TileInfo
     public double ScreenY { get; set; }
     public double Size { get; set; }
 }
+
+public interface IMandelbrotService
+{
+    bool IsAvailable { get; }
+    string GetEngineInfo();
+    Task<byte[]> ComputeTileAsync(double centerX, double centerY, double zoom, int width, int height, int maxIterations);
+}

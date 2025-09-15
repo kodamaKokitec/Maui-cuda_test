@@ -2,14 +2,6 @@ using MandelbrotMAUI.Models;
 
 namespace MandelbrotMAUI.Services;
 
-public interface IMandelbrotService
-{
-    Task<byte[]> ComputeTileAsync(double centerX, double centerY, double zoom, 
-                                 int width, int height, int maxIterations);
-    string GetEngineInfo();
-    bool IsAvailable { get; }
-}
-
 public class CpuMandelbrotService : IMandelbrotService
 {
     public bool IsAvailable => true;
@@ -100,12 +92,4 @@ public class CpuMandelbrotService : IMandelbrotService
 
         return ((byte)((r + m) * 255), (byte)((g + m) * 255), (byte)((b + m) * 255));
     }
-}
-namespace MandelbrotMAUI.Services;
-
-public interface IMandelbrotService : IDisposable
-{
-    bool IsAvailable { get; }
-    string GetEngineInfo();
-    Task<byte[]> ComputeTileAsync(double centerX, double centerY, double zoom, int width, int height, int maxIterations);
 }
