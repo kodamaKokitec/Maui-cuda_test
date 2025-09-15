@@ -48,9 +48,22 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 		
 		<!-- Native DLL Distribution -->
+<<<<<<< HEAD
 		<Content Include="Native\MandelbrotCudaWrapper.dll" Condition="Exists('Native\MandelbrotCudaWrapper.dll')">
+=======
+		<Content Include="Native\MandelbrotCudaWrapper.dll">
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
+<<<<<<< HEAD
 </Project>
+=======
+	<ItemGroup>
+	  <Content Include="Resources\Styles\Colors.xaml" />
+	  <Content Include="Resources\Styles\Styles.xaml" />
+	</ItemGroup>
+
+</Project>
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

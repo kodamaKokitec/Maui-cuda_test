@@ -6,6 +6,7 @@ namespace MandelbrotMAUI.Services;
 public class CudaMandelbrotService : IMandelbrotService
 {
     // P/Invoke declarations for CUDA wrapper
+<<<<<<< HEAD
     [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "InitializeCuda")]
     private static extern int InitializeCuda();
 
@@ -25,6 +26,21 @@ public class CudaMandelbrotService : IMandelbrotService
 
     private readonly CpuMandelbrotService _cpuFallback;
     private bool _cudaInitialized = false;
+=======
+    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int GenerateMandelbrot(
+        byte[] imageData, int width, int height,
+        double centerX, double centerY, double zoom, int maxIterations);
+
+    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int GetCudaDeviceInfo(
+        byte[] deviceName, int nameSize, out int computeMajor, out int computeMinor);
+
+    [DllImport("MandelbrotCudaWrapper.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int TestCudaOperation();
+
+    private readonly CpuMandelbrotService _cpuFallback;
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
     private bool _cudaAvailable = false;
     private string _gpuInfo = "Unknown";
 
@@ -42,6 +58,7 @@ public class CudaMandelbrotService : IMandelbrotService
     {
         try
         {
+<<<<<<< HEAD
             if (IsCudaAvailable() > 0)
             {
                 if (InitializeCuda() == 0)
@@ -53,17 +70,38 @@ public class CudaMandelbrotService : IMandelbrotService
                     var infoBuffer = new byte[256];
                     GetGpuInfo(infoBuffer, infoBuffer.Length);
                     _gpuInfo = System.Text.Encoding.UTF8.GetString(infoBuffer).TrimEnd('\0');
+=======
+            if (TestCudaOperation() == 0)
+            {
+                _cudaAvailable = true;
+
+                // Get GPU info
+                var deviceNameBuffer = new byte[256];
+                int computeMajor, computeMinor;
+                if (GetCudaDeviceInfo(deviceNameBuffer, deviceNameBuffer.Length, out computeMajor, out computeMinor) == 0)
+                {
+                    var deviceName = System.Text.Encoding.UTF8.GetString(deviceNameBuffer).TrimEnd('\0');
+                    _gpuInfo = $"{deviceName} (Compute {computeMajor}.{computeMinor})";
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
                 }
             }
         }
         catch (DllNotFoundException)
         {
+<<<<<<< HEAD
             // CUDA wrapper DLL not found - use CPU fallback
             _cudaAvailable = false;
         }
         catch (Exception)
         {
             // Other initialization errors - use CPU fallback
+=======
+            _cudaAvailable = false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"CUDA initialization failed: {ex.Message}");
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
             _cudaAvailable = false;
         }
     }
@@ -86,6 +124,7 @@ public class CudaMandelbrotService : IMandelbrotService
     {
         return await Task.Run(() =>
         {
+<<<<<<< HEAD
             var rgbData = new byte[width * height * 3]; // RGB
             
             System.Diagnostics.Debug.WriteLine($"CUDA: Computing tile {width}x{height}, center=({centerX:F6}, {centerY:F6}), zoom={zoom:F2}");
@@ -126,10 +165,34 @@ public class CudaMandelbrotService : IMandelbrotService
             // デバッグ用：最初のタイル計算時にBMPファイルを保存
             SaveDebugBmp(rgbData, width, height, centerX, centerY, zoom);
 
+=======
+            var rgbData = new byte[width * height * 3];
+            
+            int result = GenerateMandelbrot(rgbData, width, height, centerX, centerY, zoom, maxIterations);
+            
+            if (result != 0)
+            {
+                throw new InvalidOperationException($"CUDA computation failed with error code: {result}");
+            }
+            
+            // Convert RGB to RGBA for UI compatibility
+            var rgbaData = new byte[width * height * 4];
+            for (int i = 0; i < width * height; i++)
+            {
+                int rgbIndex = i * 3;
+                int rgbaIndex = i * 4;
+                rgbaData[rgbaIndex] = rgbData[rgbIndex];         // R
+                rgbaData[rgbaIndex + 1] = rgbData[rgbIndex + 1]; // G
+                rgbaData[rgbaIndex + 2] = rgbData[rgbIndex + 2]; // B
+                rgbaData[rgbaIndex + 3] = 255;                   // A (fully opaque)
+            }
+            
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
             return rgbaData;
         });
     }
 
+<<<<<<< HEAD
     private static int _debugSaveCount = 0;
 
     private void SaveDebugBmp(byte[] rgbData, int width, int height, double centerX, double centerY, double zoom)
@@ -205,3 +268,10 @@ public class CudaMandelbrotService : IMandelbrotService
         }
     }
 }
+=======
+    public void Dispose()
+    {
+        _cpuFallback?.Dispose();
+    }
+}
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83

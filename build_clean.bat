@@ -28,6 +28,7 @@ nvcc -o mandelbrot_cuda_clean mandelbrot_cuda_clean.cu
 if %ERRORLEVEL% equ 0 (
     echo.
     echo ===== BUILD SUCCESSFUL =====
+<<<<<<< HEAD
     echo Executable: mandelbrot_cuda_clean.exe
     echo.
     echo Ready to run!
@@ -39,3 +40,19 @@ if %ERRORLEVEL% equ 0 (
 )
 
 pause
+=======
+    echo Output: mandelbrot_cuda_clean.exe
+    echo.
+    echo To run: .\mandelbrot_cuda_clean.exe
+    echo Output files: mandelbrot.bmp, mandelbrot.ppm
+    echo.
+) else (
+    echo.
+    echo ===== BUILD FAILED =====
+    echo Please check for compilation errors above
+    echo.
+)
+
+echo Press any key to continue...
+pause >nul
+>>>>>>> 714a192637bdc28463b85e4fc8f387b4f517cf83
